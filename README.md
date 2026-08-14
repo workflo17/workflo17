@@ -7,7 +7,8 @@ Several of these run in your browser right now. The rest live in private repos, 
 they're personal projects rather than products. This page is the index to all of it.
 
 Lately that includes tools and workflows for businesses and local communities, not just
-games: Bitemap is the first public piece of that thread.
+games. Bitemap and NYC Pulse are that thread pointed at the city's own open data, and
+Night Desk is it pointed at a small business that cannot answer the phone at 2am.
 
 ---
 
@@ -30,11 +31,27 @@ melting to sand turning to glass at magma contact, and an in-game maker lets you
 your own elements, chemistry included. A whole scene compresses to a share code of about
 280 characters you can paste in chat.
 
+### [FALA!](https://github.com/workflo17/fala) · [try it on your phone](https://workflo17.github.io/fala/)
+
+A Brazilian Portuguese trainer that installs to a phone home screen: 240 cards, spaced
+repetition, native neural audio, and no backend at all. It keeps working on the subway.
+
+---
+
+## The city, as data
+
 ### [Bitemap](https://github.com/workflo17/bitemap) · [open the map](https://bitemap-workflo17.vercel.app)
 
 Every licensed restaurant in New York City, all 30,075 of them, on one 3D map colored by
 cuisine, with curated food crawls drawn as subway strip maps. Vanilla JS and MapLibre GL
 over the city's open inspection data. No build step, no paid APIs.
+
+### [NYC Pulse](https://github.com/workflo17/nyc-pulse) · [open the dashboard](https://workflo17.github.io/nyc-pulse/)
+
+Seven days of the city's 311 complaints, live from NYC Open Data. Socrata does the
+counting server-side, the browser does the aggregation, and every chart is drawn by hand
+on a canvas with no chart library. Each sentence under a chart is computed from whatever
+data loaded, so nothing on the page is a number I typed in.
 
 ---
 
@@ -47,6 +64,25 @@ re-engagement agent for a mental health company, with the sales reasoning behind
 message annotated beside the thread, red-team buttons that prove the crisis and opt-out
 guardrails hold, and four follow-on products built as playable sketches. One HTML file,
 no framework, no external requests.
+
+### [The Mindbloom Dossier](https://github.com/workflo17/mindbloom-dossier) · [read it](https://workflo17.github.io/mindbloom-dossier/)
+
+What came after Tend: seven pieces of lifecycle work for the same application, built in a
+day. The one I'd point at is the safety piece, which ships a 90-message labeled test set
+and a runnable harness proving the point. A naive keyword filter catches 4 of 30 crisis
+messages while firing on 12 that were fine; adding idiom allowlists and context guards
+clears every false alarm and still catches only those same 4. The conclusion is that you
+cannot keyword your way to safe automated messaging, so the agent has to stop selling on
+uncertainty instead of trying to be certain.
+
+### [Night Desk](https://github.com/workflo17/night-desk) · [talk to it](https://workflo17.github.io/night-desk/)
+
+A voice receptionist for an invented late-night diner. You hold the bell and talk; it
+answers out loud. Speech in and out are the browser's own APIs, and the brain is a
+hand-written state machine, not an LLM call: it books a table by asking for party size,
+day, time and name, re-asks whatever you skipped, recaps, and only commits when you say
+yes. A panel beside the chat logs the intent and state for every turn, so you can watch it
+reason instead of taking my word for it.
 
 ### [JobFit Lens](https://github.com/workflo17/jobfit-lens)
 
@@ -106,11 +142,6 @@ A music discovery backend whose recommendations explain their own ranking instea
 returning an unexplained list. Runs in a seeded demo mode with no database attached, and
 switches to Postgres when you give it one.
 
-**FALA!** · *private* · vanilla JS
-
-A Brazilian Portuguese app that installs to a phone home screen. Spaced repetition, native
-neural audio, no backend.
-
 **LED Studio** · *private* · Node.js
 
 A control surface for desktop RGB lighting. It speaks the OpenRGB SDK protocol over TCP
@@ -125,7 +156,9 @@ the interface still works.
 are all just files you can open.
 
 **Local-first.** Most of these run on a machine rather than a server, and keep their data
-there. The three browser projects up top are the slice that could travel.
+there. Night Desk does its speech and its thinking in the browser; NYC Pulse asks the
+city's API to do the counting and aggregates the rest client-side. The public projects up
+top are the slice that could travel.
 
 **Determinism is a test, not a promise.** A change to Vivarium's sim has to produce a
 bit-identical event stream from the same seed, and its snapshots have to round-trip
