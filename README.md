@@ -6,6 +6,9 @@ instead of in someone's cloud.
 Three of these run in your browser right now. The rest live in private repos, because
 they're personal projects rather than products. This page is the index to all of it.
 
+Lately that includes tools and workflows for businesses and local communities, not just
+games: Bitemap is the first public piece of that thread.
+
 ---
 
 ## Play something
