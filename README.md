@@ -3,7 +3,7 @@
 I build small, self-contained software: games, and local tools that run on the machine
 instead of in someone's cloud.
 
-Three of these run in your browser right now. The rest live in private repos, because
+Several of these run in your browser right now. The rest live in private repos, because
 they're personal projects rather than products. This page is the index to all of it.
 
 Lately that includes tools and workflows for businesses and local communities, not just
@@ -35,6 +35,32 @@ your own elements, chemistry included. A whole scene compresses to a share code 
 Every licensed restaurant in New York City, all 30,075 of them, on one 3D map colored by
 cuisine, with curated food crawls drawn as subway strip maps. Vanilla JS and MapLibre GL
 over the city's open inspection data. No build step, no paid APIs.
+
+---
+
+## Use something
+
+### [Tend](https://github.com/workflo17/tend) · [see it work](https://tend-demo-workflo17.vercel.app)
+
+An interactive work sample built for a job application in one day: a simulated SMS
+re-engagement agent for a mental health company, with the sales reasoning behind every
+message annotated beside the thread, red-team buttons that prove the crisis and opt-out
+guardrails hold, and four follow-on products built as playable sketches. One HTML file,
+no framework, no external requests.
+
+### [JobFit Lens](https://github.com/workflo17/jobfit-lens)
+
+A Chrome extension that scores the job posting you're reading against your own skill
+list: match percentage, missing skills, salary and remote signals. Runs entirely on your
+machine, reads the page only when you click the icon, and the scoring engine ships with
+its node test suite.
+
+### [agent-lanes](https://github.com/workflo17/agent-lanes)
+
+The coordination protocol I use to run multiple AI coding agents on one codebase at the
+same time: single-writer lanes, a shared board, landing rules. Three markdown files,
+nothing to install. Distilled from the system that keeps parallel sessions from colliding
+on the ant simulations below.
 
 ---
 
@@ -104,6 +130,12 @@ there. The three browser projects up top are the slice that could travel.
 **Determinism is a test, not a promise.** A change to Vivarium's sim has to produce a
 bit-identical event stream from the same seed, and its snapshots have to round-trip
 byte-identical, before it lands. Granulab holds its two engines to the same standard.
+
+**Built by directing agents.** I have no formal programming background; everything here
+is built by directing fleets of AI coding agents, coordinated with
+[agent-lanes](https://github.com/workflo17/agent-lanes) when several work the same repo
+at once. The craft I bring is knowing what to build, what good looks like, and what to
+refuse.
 
 **Working with:** JavaScript · TypeScript · Node · Three.js / WebGL · Canvas 2D ·
 MapLibre GL · Next.js · Postgres · Python · Blender
