@@ -10,6 +10,10 @@ Lately that includes tools and workflows for businesses and local communities, n
 games. Bitemap and NYC Pulse are that thread pointed at the city's own open data, and
 Night Desk is it pointed at a small business that cannot answer the phone at 2am.
 
+**Everything in one place, with screenshots and one-click demos:
+[donflo.vercel.app](https://donflo.vercel.app)**: client sites, design concepts, live
+data maps, browser games and a colony of 3D ants, most of it openable from that page.
+
 ---
 
 ## Play something
@@ -147,6 +151,23 @@ switches to Postgres when you give it one.
 A control surface for desktop RGB lighting. It speaks the OpenRGB SDK protocol over TCP
 directly, with zero npm dependencies, and serves demo devices while the daemon is down so
 the interface still works.
+
+---
+
+## Tooling I use on my own work
+
+### [first-party-analytics](https://github.com/workflo17/first-party-analytics)
+
+Conversion tracking for a static site with no third-party script, no cookies and no
+consent banner. A serverless collector, a private blob store, and a dashboard behind a
+key. Each event's summary is encoded into its storage key, so the dashboard builds every
+table from one list call instead of fetching a few hundred bodies. Running in production
+on the portfolio above.
+
+### [agent-lanes](https://github.com/workflo17/agent-lanes)
+
+Coordination for several coding agents working the same repo at once, so they do not land
+on each other's files.
 
 ---
 
