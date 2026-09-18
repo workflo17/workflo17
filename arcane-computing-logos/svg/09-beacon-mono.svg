@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Arcane Computing, Inc. — Beacon, one colour (concept 09). Drawn on a 120x120 grid. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120" aria-hidden="true" style="display:block;flex-shrink:0;overflow:visible;"><g fill="#0B2A3A"><path d="M60 20 L72 32 L48 32 Z"/><path d="M44 104 L53 46 L67 46 L76 104 Z"/><rect x="34" y="101" width="52" height="10" rx="3"/></g><rect x="49" y="32" width="22" height="14" rx="2" fill="#0B2A3A"/><g fill="none" stroke="#0B2A3A" stroke-width="4" stroke-linecap="round"><path d="M82.52 26 A26 26 0 0 1 82.52 52"/><path d="M37.48 26 A26 26 0 0 0 37.48 52"/></g></svg>
