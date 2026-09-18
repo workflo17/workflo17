@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Unit 04 - Sharing the Road
+  Moodle XML question bank. Import through Question bank > Import > Moodle XML format.
+
+  Conventions held across all ten units, and checked by moodle/check.mjs:
+    - idnumber on every question, U<unit>-Q<nn>, so a question can be traced after a re-import
+    - one rc-* tag per question naming the Ohio Revised Code section it tests
+    - feedback on every answer, not only the correct one
+    - generalfeedback restating the rule, shown whatever the student picked
+    - the category set in-file, so an import lands where it belongs without hand-sorting
+-->
+<quiz>
+
+  <question type="category">
+    <category><text>$course$/top/Unit 04 - Sharing the Road</text></category>
+    <info format="html"><text><![CDATA[<p>Right-of-way, stopped school buses, and assured clear distance. Items map one to one onto the Unit 4 Lesson checkpoints.</p>]]></text></info>
+    <idnumber></idnumber>
+  </question>
+
+  <question type="multichoice">
+    <name><text>U04-Q01 Behind a stopped school bus on a four-lane road</text></name>
+    <questiontext format="html"><text><![CDATA[<p>You are on a four-lane road, driving <strong>behind</strong> a school bus in the same direction it is travelling. The bus stops and its red lights begin flashing.</p><p>What are you required to do?</p>]]></text></questiontext>
+    <generalfeedback format="html"><text><![CDATA[<p>The four-lane exception in R.C. 4511.75 applies only to a driver <em>meeting</em> the bus from the opposite direction. Travelling the same direction, you stop at least ten feet from the bus and stay stopped until it moves or the driver signals you on.</p>]]></text></generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.3333333</penalty>
+    <hidden>0</hidden>
+    <idnumber>U04-Q01</idnumber>
+    <single>true</single>
+    <shuffleanswers>true</shuffleanswers>
+    <answernumbering>abc</answernumbering>
+    <showstandardinstruction>0</showstandardinstruction>
+    <correctfeedback format="html"><text><![CDATA[<p>Correct.</p>]]></text></correctfeedback>
+    <partiallycorrectfeedback format="html"><text><![CDATA[<p>Partially correct.</p>]]></text></partiallycorrectfeedback>
+    <incorrectfeedback format="html"><text><![CDATA[<p>Not correct.</p>]]></text></incorrectfeedback>
+    <shownumcorrect/>
+    <answer fraction="100" format="html">
+      <text><![CDATA[<p>Stop at least ten feet behind the bus and wait until it moves or the driver signals you on.</p>]]></text>
+      <feedback format="html"><text><![CDATA[<p>Yes. Nothing in the statute cancels this duty for a driver behind the bus, whatever the lane count.</p>]]></text></feedback>
+    </answer>
+    <answer fraction="0" format="html">
+      <text><![CDATA[<p>Slow down and pass with caution, because the road has four or more lanes.</p>]]></text>
+      <feedback format="html"><text><![CDATA[<p>The lane count is a real test, but you only reach it when you are meeting the bus from the opposite direction.</p>]]></text></feedback>
+    </answer>
+    <answer fraction="0" format="html">
+      <text><![CDATA[<p>Change lanes and continue at normal speed, since another lane is open.</p>]]></text>
+      <feedback format="html"><text><![CDATA[<p>An open lane changes nothing. The duty attaches to the stopped bus and its flashing red lights.</p>]]></text></feedback>
+    </answer>
+    <answer fraction="0" format="html">
+      <text><![CDATA[<p>Stop only if you can see children crossing in front of the bus.</p>]]></text>
+      <feedback format="html"><text><![CDATA[<p>The trigger is the stopped bus with red lights flashing. You usually cannot see the child from behind, which is why the rule does not depend on seeing one.</p>]]></text></feedback>
+    </answer>
+    <tags><tag><text>unit-04</text></tag><tag><text>rc-4511.75</text></tag><tag><text>checkpoint-bus</text></tag></tags>
+  </question>
+
+  <question type="multichoice">
+    <name><text>U04-Q02 Meeting a stopped school bus on a two-lane road</text></name>
+    <questiontext format="html"><text><![CDATA[<p>A two-lane road, one lane in each direction. A school bus stops ahead of you in the <strong>oncoming</strong> lane with its red lights flashing.</p><p>What are you required to do?</p>]]></text></questiontext>
+    <generalfeedback format="html"><text><![CDATA[<p>Travelling the opposite direction gets you to the lane question, not past it. R.C. 4511.75 excuses a meeting driver only on a highway of four or more traffic lanes. Two lanes is fewer than four, so you stop.</p>]]></text></generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.3333333</penalty>
+    <hidden>0</hidden>
+    <idnumber>U04-Q02</idnumber>
+    <single>true</single>
+    <shuffleanswers>true</shuffleanswers>
+    <answernumbering>abc</answernumbering>
+    <showstandardinstruction>0</showstandardinstruction>
+    <correctfeedback format="html"><text><![CDATA[<p>Correct.</p>]]></text></correctfeedback>
+    <partiallycorrectfeedback format="html"><text><![CDATA[<p>Partially correct.</p>]]></text></partiallycorrectfeedback>
+    <incorrectfeedback format="html"><text><![CDATA[<p>Not correct.</p>]]></text></incorrectfeedback>
+    <shownumcorrect/>
+    <answer fraction="100" format="html">
+      <text><![CDATA[<p>Stop at least ten feet away and wait for the bus to move or the driver to signal you on.</p>]]></text>
+      <feedback format="html"><text><![CDATA[<p>Yes. The exception needs four or more lanes, and this road has two.</p>]]></text></feedback>
+    </answer>
+    <answer fraction="0" format="html">
+      <text><![CDATA[<p>Proceed with caution, because you are travelling the opposite direction.</p>]]></text>
+      <feedback format="html"><text><![CDATA[<p>Direction is the first question, not the only one. Count the lanes before you decide.</p>]]></text></feedback>
+    </answer>
+    <answer fraction="0" format="html">
+      <text><![CDATA[<p>Continue at normal speed, because the bus is not in your lane.</p>]]></text>
+      <feedback format="html"><text><![CDATA[<p>On a two-lane road a child crossing to the far side crosses your lane. That is the case the rule exists for.</p>]]></text></feedback>
+    </answer>
+    <tags><tag><text>unit-04</text></tag><tag><text>rc-4511.75</text></tag><tag><text>checkpoint-bus</text></tag></tags>
+  </question>
+
+  <question type="truefalse">
+    <name><text>U04-Q03 Ten feet, and staying stopped</text></name>
+    <questiontext format="html"><text><![CDATA[<p>A driver required to stop for a school bus may start moving again as soon as the last child is off the road, even if the bus still has its red lights flashing.</p>]]></text></questiontext>
+    <generalfeedback format="html"><text><![CDATA[<p>False. Under R.C. 4511.75 you stop at least ten feet from the front or rear of the bus and stay stopped until the bus resumes motion or the bus driver signals you to proceed. Judging for yourself that the crossing is finished is not one of the two releases.</p>]]></text></generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>1.0000000</penalty>
+    <hidden>0</hidden>
+    <idnumber>U04-Q03</idnumber>
+    <answer fraction="0" format="moodle_auto_format">
+      <text>true</text>
+      <feedback format="html"><text><![CDATA[<p>No. Two things release you: the bus moves, or the driver signals you on.</p>]]></text></feedback>
+    </answer>
+    <answer fraction="100" format="moodle_auto_format">
+      <text>false</text>
+      <feedback format="html"><text><![CDATA[<p>Right. You wait for the bus to move or for the driver to wave you through.</p>]]></text></feedback>
+    </answer>
+    <tags><tag><text>unit-04</text></tag><tag><text>rc-4511.75</text></tag><tag><text>checkpoint-bus</text></tag></tags>
+  </question>
+
+  <question type="multichoice">
+    <name><text>U04-Q04 Assured clear distance in fog</text></name>
+    <questiontext format="html"><text><![CDATA[<p>The posted limit is 55 mph. Dense fog cuts visibility to roughly 100 feet. You are driving 52 mph and you strike a car stopped in your lane.</p><p>Can you be cited for your speed?</p>]]></text></questiontext>
+    <generalfeedback format="html"><text><![CDATA[<p>Yes. R.C. 4511.21 forbids driving faster than will permit stopping within the assured clear distance ahead. When visibility falls, the lawful speed falls with it, whatever the sign says.</p>]]></text></generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.3333333</penalty>
+    <hidden>0</hidden>
+    <idnumber>U04-Q04</idnumber>
+    <single>true</single>
+    <shuffleanswers>true</shuffleanswers>
+    <answernumbering>abc</answernumbering>
+    <showstandardinstruction>0</showstandardinstruction>
+    <correctfeedback format="html"><text><![CDATA[<p>Correct.</p>]]></text></correctfeedback>
+    <partiallycorrectfeedback format="html"><text><![CDATA[<p>Partially correct.</p>]]></text></partiallycorrectfeedback>
+    <incorrectfeedback format="html"><text><![CDATA[<p>Not correct.</p>]]></text></incorrectfeedback>
+    <shownumcorrect/>
+    <answer fraction="100" format="html">
+      <text><![CDATA[<p>Yes. Assured clear distance sets a lower lawful speed than the posted limit when you cannot see far ahead.</p>]]></text>
+      <feedback format="html"><text><![CDATA[<p>Yes. At 100 feet of visibility the question is whether you could stop in 100 feet, and at 52 mph you could not.</p>]]></text></feedback>
+    </answer>
+    <answer fraction="0" format="html">
+      <text><![CDATA[<p>No. You were under the posted limit, so your speed was lawful.</p>]]></text>
+      <feedback format="html"><text><![CDATA[<p>The posted number is a maximum for good conditions. It does not make every lower speed lawful.</p>]]></text></feedback>
+    </answer>
+    <answer fraction="0" format="html">
+      <text><![CDATA[<p>No. The driver who stopped in a travel lane caused the crash.</p>]]></text>
+      <feedback format="html"><text><![CDATA[<p>Whatever that driver did, the duty to be able to stop inside the distance you can see is yours.</p>]]></text></feedback>
+    </answer>
+    <answer fraction="0" format="html">
+      <text><![CDATA[<p>Only if the fog had been reported in advance.</p>]]></text>
+      <feedback format="html"><text><![CDATA[<p>Nothing in the statute waits on a report. The conditions in front of you are the conditions.</p>]]></text></feedback>
+    </answer>
+    <tags><tag><text>unit-04</text></tag><tag><text>rc-4511.21</text></tag><tag><text>checkpoint-acda</text></tag></tags>
+  </question>
+
+  <question type="truefalse">
+    <name><text>U04-Q05 The posted limit as a ceiling</text></name>
+    <questiontext format="html"><text><![CDATA[<p>Driving at or below the posted speed limit means your speed is always lawful.</p>]]></text></questiontext>
+    <generalfeedback format="html"><text><![CDATA[<p>False. Two limits are in force at once: the posted maximum, and the speed that lets you stop within the assured clear distance ahead under R.C. 4511.21. The lower of the two governs.</p>]]></text></generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>1.0000000</penalty>
+    <hidden>0</hidden>
+    <idnumber>U04-Q05</idnumber>
+    <answer fraction="0" format="moodle_auto_format">
+      <text>true</text>
+      <feedback format="html"><text><![CDATA[<p>No. Fog, ice, a blind crest or a stopped car can each put the lawful speed below the sign.</p>]]></text></feedback>
+    </answer>
+    <answer fraction="100" format="moodle_auto_format">
+      <text>false</text>
+      <feedback format="html"><text><![CDATA[<p>Right. The sign is a ceiling for good conditions, not a permission for all of them.</p>]]></text></feedback>
+    </answer>
+    <tags><tag><text>unit-04</text></tag><tag><text>rc-4511.21</text></tag><tag><text>checkpoint-acda</text></tag></tags>
+  </question>
+
+  <question type="multichoice">
+    <name><text>U04-Q06 Right-of-way and unlawful speed</text></name>
+    <questiontext format="html"><text><![CDATA[<p>At an intersection with no signs or signals you are the vehicle on the right, travelling 45 mph in a 25 mph zone. A car arrives from your left at about the same moment and the two of you collide.</p><p>Being on the right put the other driver in the yielding position. What does that mean for you?</p>]]></text></questiontext>
+    <generalfeedback format="html"><text><![CDATA[<p>R.C. 4511.01 defines right-of-way as the right to proceed uninterruptedly <em>in a lawful manner</em>. Ohio courts have held that a driver keeps preferred-party status unless that driver violated a legal requirement. Speeding is the common one, so the preference is not safe here.</p>]]></text></generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.3333333</penalty>
+    <hidden>0</hidden>
+    <idnumber>U04-Q06</idnumber>
+    <single>true</single>
+    <shuffleanswers>true</shuffleanswers>
+    <answernumbering>abc</answernumbering>
+    <showstandardinstruction>0</showstandardinstruction>
+    <correctfeedback format="html"><text><![CDATA[<p>Correct.</p>]]></text></correctfeedback>
+    <partiallycorrectfeedback format="html"><text><![CDATA[<p>Partially correct.</p>]]></text></partiallycorrectfeedback>
+    <incorrectfeedback format="html"><text><![CDATA[<p>Not correct.</p>]]></text></incorrectfeedback>
+    <shownumcorrect/>
+    <answer fraction="100" format="html">
+      <text><![CDATA[<p>You can lose the preference, because Ohio attaches right-of-way to proceeding in a lawful manner and 45 in a 25 is not lawful.</p>]]></text>
+      <feedback format="html"><text><![CDATA[<p>Yes. The definition and the speed rule meet here.</p>]]></text></feedback>
+    </answer>
+    <answer fraction="0" format="html">
+      <text><![CDATA[<p>You keep the right-of-way, because the rule is about position and not speed.</p>]]></text>
+      <feedback format="html"><text><![CDATA[<p>Position decides who yields. Lawful movement decides whether the preference survives.</p>]]></text></feedback>
+    </answer>
+    <answer fraction="0" format="html">
+      <text><![CDATA[<p>The right-of-way rule does not apply without signs or signals.</p>]]></text>
+      <feedback format="html"><text><![CDATA[<p>An uncontrolled intersection is exactly where the vehicle-on-the-right rule does its work.</p>]]></text></feedback>
+    </answer>
+    <answer fraction="0" format="html">
+      <text><![CDATA[<p>You keep the right-of-way and the two drivers share the penalty.</p>]]></text>
+      <feedback format="html"><text><![CDATA[<p>Right-of-way is not divided. Each driver is measured against what the law required of that driver.</p>]]></text></feedback>
+    </answer>
+    <tags><tag><text>unit-04</text></tag><tag><text>rc-4511.01</text></tag><tag><text>rc-4511.41</text></tag><tag><text>checkpoint-row</text></tag></tags>
+  </question>
+
+  <question type="multichoice">
+    <name><text>U04-Q07 After the stop at a stop sign</text></name>
+    <questiontext format="html"><text><![CDATA[<p>You come to a complete stop at a stop sign. A car on the through street is approaching, close enough that pulling out would force it to brake hard.</p><p>What does Ohio law require next?</p>]]></text></questiontext>
+    <generalfeedback format="html"><text><![CDATA[<p>Stopping and yielding are two duties, not one. Under R.C. 4511.43, after stopping you must still yield to traffic already in the intersection and to traffic approaching so closely as to constitute an immediate hazard.</p>]]></text></generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.3333333</penalty>
+    <hidden>0</hidden>
+    <idnumber>U04-Q07</idnumber>
+    <single>true</single>
+    <shuffleanswers>true</shuffleanswers>
+    <answernumbering>abc</answernumbering>
+    <showstandardinstruction>0</showstandardinstruction>
+    <correctfeedback format="html"><text><![CDATA[<p>Correct.</p>]]></text></correctfeedback>
+    <partiallycorrectfeedback format="html"><text><![CDATA[<p>Partially correct.</p>]]></text></partiallycorrectfeedback>
+    <incorrectfeedback format="html"><text><![CDATA[<p>Not correct.</p>]]></text></incorrectfeedback>
+    <shownumcorrect/>
+    <answer fraction="100" format="html">
+      <text><![CDATA[<p>Wait, and yield to the approaching car, because it is close enough to be an immediate hazard.</p>]]></text>
+      <feedback format="html"><text><![CDATA[<p>Yes. The stop satisfies one duty; yielding is the other.</p>]]></text></feedback>
+    </answer>
+    <answer fraction="0" format="html">
+      <text><![CDATA[<p>Proceed, because you stopped first and that gives you the right-of-way.</p>]]></text>
+      <feedback format="html"><text><![CDATA[<p>Arriving first does not transfer the preference to the driver facing the stop sign.</p>]]></text></feedback>
+    </answer>
+    <answer fraction="0" format="html">
+      <text><![CDATA[<p>Proceed slowly, so the other driver has time to react.</p>]]></text>
+      <feedback format="html"><text><![CDATA[<p>Making the other driver adjust is the definition of failing to yield.</p>]]></text></feedback>
+    </answer>
+    <answer fraction="0" format="html">
+      <text><![CDATA[<p>Proceed if you can clear the intersection before the other car reaches it.</p>]]></text>
+      <feedback format="html"><text><![CDATA[<p>The test is whether the approaching vehicle is an immediate hazard, not whether you can beat it.</p>]]></text></feedback>
+    </answer>
+    <tags><tag><text>unit-04</text></tag><tag><text>rc-4511.43</text></tag><tag><text>checkpoint-row</text></tag></tags>
+  </question>
+
+</quiz>

@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unit 4 Build Sample</title>
+<meta name="description" content="A working sample of one Ohio driver education unit: three content pages, branching remediation, completion gating, and the Moodle build notes behind it.">
+<style>
+:root {
+  --bg: #fbfaf7;
+  --surface: #ffffff;
+  --surface-2: #f2efe9;
+  --line: #ddd7cb;
+  --line-strong: #c4bcaa;
+  --ink: #1d1b16;
+  --ink-2: #575142;
+  --ink-3: #807966;
+  --accent: #8a5a00;
+  --accent-bg: #fdf3dd;
+  --ok: #1d6b3e;
+  --ok-bg: #e7f4eb;
+  --no: #a32d20;
+  --no-bg: #fdeceb;
+  --focus: #0b5ed7;
+  --radius: 10px;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #14150f;
+    --surface: #1c1e17;
+    --surface-2: #24271e;
+    --line: #343829;
+    --line-strong: #4b5140;
+    --ink: #eceadf;
+    --ink-2: #b3b0a0;
+    --ink-3: #8b8877;
+    --accent: #e0aa4e;
+    --accent-bg: #2e2612;
+    --ok: #74c68f;
+    --ok-bg: #152a1c;
+    --no: #eb8b7e;
+    --no-bg: #2e1613;
+    --focus: #7aa7ff;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #14150f;
+  --surface: #1c1e17;
+  --surface-2: #24271e;
+  --line: #343829;
+  --line-strong: #4b5140;
+  --ink: #eceadf;
+  --ink-2: #b3b0a0;
+  --ink-3: #8b8877;
+  --accent: #e0aa4e;
+  --accent-bg: #2e2612;
+  --ok: #74c68f;
+  --ok-bg: #152a1c;
+  --no: #eb8b7e;
+  --no-bg: #2e1613;
+  --focus: #7aa7ff;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.6;
+}
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 3px; }
+.skip {
+  position: absolute; left: -9999px; top: 0; z-index: 20;
+  background: var(--surface); color: var(--ink);
+  padding: 10px 16px; border: 2px solid var(--focus); border-radius: 0 0 var(--radius) 0;
+}
+.skip:focus { left: 0; }
+.wrap { max-width: 980px; margin: 0 auto; padding: 0 16px 72px; }
+
+header.top { border-bottom: 1px solid var(--line); background: var(--surface); }
+.top-in {
+  max-width: 980px; margin: 0 auto; padding: 14px 16px;
+  display: flex; flex-wrap: wrap; gap: 12px; align-items: baseline; justify-content: space-between;
+}
+.brand { font-weight: 650; letter-spacing: -0.01em; }
+.brand span { color: var(--ink-3); font-weight: 400; }
+.top-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+button {
+  font: inherit; font-size: 0.875rem; cursor: pointer;
+  background: var(--surface); color: var(--ink);
+  border: 1px solid var(--line-strong); border-radius: var(--radius);
+  padding: 7px 13px;
+}
+button:hover { background: var(--surface-2); }
+button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+button.primary {
+  background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 600;
+}
+:root[data-theme="dark"] button.primary, .dark-primary { color: #1a1508; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) button.primary { color: #1a1508; } }
+button.primary:hover { filter: brightness(1.08); }
+button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.lede {
+  margin: 26px 0 22px; padding: 18px 20px;
+  background: var(--surface); border: 1px solid var(--line); border-left: 3px solid var(--accent);
+  border-radius: var(--radius);
+}
+.lede h1 { margin: 0 0 8px; font-size: 1.32rem; letter-spacing: -0.02em; }
+.lede p { margin: 0 0 10px; color: var(--ink-2); max-width: 68ch; }
+.lede p:last-child { margin-bottom: 0; }
+
+.progress-bar { margin: 0 0 6px; height: 6px; background: var(--surface-2); border-radius: 99px; overflow: hidden; }
+.progress-fill { height: 100%; width: 0; background: var(--accent); transition: width 0.25s ease; }
+@media (prefers-reduced-motion: reduce) { .progress-fill { transition: none; } }
+.progress-row { display: flex; justify-content: space-between; gap: 12px; font-size: 0.8rem; color: var(--ink-3); margin-bottom: 20px; }
+
+.page {
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 26px; margin-bottom: 20px;
+}
+.page-kind {
+  display: inline-block; font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--ink-3); margin-bottom: 8px;
+}
+.page-kind.remed { color: var(--accent); }
+.page h2 { margin: 0 0 14px; font-size: 1.28rem; letter-spacing: -0.02em; line-height: 1.3; }
+.page h3 { margin: 22px 0 8px; font-size: 1rem; }
+.page p { margin: 0 0 14px; max-width: 70ch; }
+.page ul, .page ol { margin: 0 0 14px; padding-left: 22px; max-width: 70ch; }
+.page li { margin-bottom: 7px; }
+.page strong { font-weight: 650; }
+
+.cite {
+  font-family: var(--mono); font-size: 0.78rem;
+  background: var(--accent-bg); color: var(--accent);
+  padding: 1px 6px; border-radius: 4px; white-space: nowrap;
+}
+.cite-list {
+  margin-top: 20px; padding-top: 14px; border-top: 1px dashed var(--line);
+  font-size: 0.82rem; color: var(--ink-3);
+}
+.cite-list strong { color: var(--ink-2); font-weight: 600; }
+
+.callout {
+  background: var(--surface-2); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 14px 16px; margin: 0 0 16px;
+}
+.callout p:last-child { margin-bottom: 0; }
+.callout .label {
+  display: block; font-size: 0.74rem; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--ink-3); margin-bottom: 5px; font-weight: 600;
+}
+
+fieldset { border: 0; margin: 0; padding: 0; }
+legend { padding: 0; margin-bottom: 14px; font-weight: 600; max-width: 70ch; }
+.opt { display: block; margin-bottom: 10px; }
+.opt input { position: absolute; opacity: 0; width: 0; height: 0; }
+.opt .box {
+  display: flex; gap: 11px; align-items: flex-start;
+  padding: 13px 15px; border: 1px solid var(--line-strong); border-radius: var(--radius);
+  background: var(--surface); cursor: pointer;
+}
+.opt .box:hover { background: var(--surface-2); }
+.opt input:focus-visible + .box { outline: 3px solid var(--focus); outline-offset: 2px; }
+.opt input:checked + .box { border-color: var(--ink); background: var(--surface-2); }
+.opt .mark {
+  flex: 0 0 auto; width: 21px; height: 21px; border-radius: 50%;
+  border: 2px solid var(--line-strong); margin-top: 1px;
+  display: grid; place-items: center; font-size: 0.7rem; font-weight: 700;
+}
+.opt input:checked + .box .mark { border-color: var(--ink); background: var(--ink); color: var(--bg); }
+.opt.is-right input + .box { border-color: var(--ok); background: var(--ok-bg); }
+.opt.is-right input + .box .mark { border-color: var(--ok); background: var(--ok); color: #fff; }
+.opt.is-wrong input + .box { border-color: var(--no); background: var(--no-bg); }
+.opt.is-wrong input + .box .mark { border-color: var(--no); background: var(--no); color: #fff; }
+.opt.locked .box { cursor: default; }
+.opt .tagline { display: none; }
+.opt.is-right .tagline, .opt.is-wrong .tagline {
+  display: block; font-size: 0.78rem; font-weight: 650; letter-spacing: 0.04em;
+  text-transform: uppercase; margin-top: 5px;
+}
+.opt.is-right .tagline { color: var(--ok); }
+.opt.is-wrong .tagline { color: var(--no); }
+
+.verdict { margin: 16px 0 0; padding: 14px 16px; border-radius: var(--radius); border: 1px solid; }
+.verdict.right { background: var(--ok-bg); border-color: var(--ok); }
+.verdict.wrong { background: var(--no-bg); border-color: var(--no); }
+.verdict .head { font-weight: 650; margin-bottom: 5px; }
+.verdict.right .head { color: var(--ok); }
+.verdict.wrong .head { color: var(--no); }
+.verdict p { margin: 0; max-width: 70ch; }
+
+.nav { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 22px; }
+.nav .note { font-size: 0.82rem; color: var(--ink-3); }
+
+.done {
+  background: var(--ok-bg); border: 1px solid var(--ok); border-radius: var(--radius);
+  padding: 24px 26px; margin-bottom: 20px;
+}
+.done h2 { margin: 0 0 12px; color: var(--ok); font-size: 1.24rem; }
+.done ul { margin: 0 0 16px; padding-left: 22px; }
+
+.panel {
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 22px 24px; margin-bottom: 20px;
+}
+.panel h2 { margin: 0 0 6px; font-size: 1.05rem; letter-spacing: -0.01em; }
+.panel > p.sub { margin: 0 0 18px; color: var(--ink-3); font-size: 0.88rem; max-width: 70ch; }
+.panel h3 { margin: 24px 0 10px; font-size: 0.92rem; }
+.panel h3:first-of-type { margin-top: 0; }
+
+table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+caption { text-align: left; color: var(--ink-3); font-size: 0.82rem; padding-bottom: 8px; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-weight: 600; color: var(--ink-2); font-size: 0.78rem; letter-spacing: 0.04em; text-transform: uppercase; }
+td code, .mono { font-family: var(--mono); font-size: 0.82em; }
+.scroll-x { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+.log { font-family: var(--mono); font-size: 0.78rem; margin: 0; padding: 0; list-style: none; }
+.log li { padding: 6px 0; border-bottom: 1px solid var(--line); display: flex; gap: 10px; }
+.log li:last-child { border-bottom: 0; }
+.log .t { color: var(--ink-3); flex: 0 0 auto; }
+.log .m { color: var(--ink-2); }
+.log .m b { color: var(--ink); font-weight: 600; }
+.log .jump b { color: var(--accent); }
+.empty { color: var(--ink-3); font-size: 0.85rem; font-style: italic; }
+
+.flow { display: grid; gap: 0; margin: 0; font-size: 0.83rem; }
+.flow-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items: start; }
+.node {
+  border: 1px solid var(--line-strong); border-radius: var(--radius);
+  padding: 9px 12px; background: var(--surface-2);
+}
+.node .id { font-family: var(--mono); font-size: 0.74rem; color: var(--ink-3); display: block; }
+.node.q { border-color: var(--accent); }
+.node.r { border-style: dashed; border-color: var(--accent); background: var(--accent-bg); }
+.node.now { box-shadow: inset 0 0 0 2px var(--ink); }
+.tick { height: 16px; border-left: 2px solid var(--line-strong); margin-left: 22px; }
+.tick.back { border-left-style: dashed; border-color: var(--accent); }
+.arm { font-size: 0.76rem; color: var(--ink-3); padding: 3px 0 3px 10px; }
+
+.settings { margin: 0; }
+.settings div { display: grid; grid-template-columns: minmax(180px, 38%) 1fr; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--line); font-size: 0.85rem; }
+.settings div:last-child { border-bottom: 0; }
+.settings dt { color: var(--ink-2); }
+.settings dd { margin: 0; font-family: var(--mono); font-size: 0.82em; }
+
+footer.foot {
+  border-top: 1px solid var(--line); margin-top: 36px; padding-top: 22px;
+  font-size: 0.85rem; color: var(--ink-3);
+}
+footer.foot p { max-width: 70ch; margin: 0 0 10px; }
+footer.foot a { color: var(--accent); }
+
+.hidden { display: none !important; }
+.sr { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+
+@media (max-width: 620px) {
+  .page, .panel { padding: 18px 16px; }
+  .flow-row { grid-template-columns: 1fr; }
+  .settings div { grid-template-columns: 1fr; gap: 2px; }
+  .lede { padding: 15px 16px; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the lesson</a>
+
+<header class="top">
+  <div class="top-in">
+    <div class="brand">Unit 4 <span>&middot; build sample</span></div>
+    <div class="top-actions">
+      <button id="viewStudent" aria-pressed="true">Student view</button>
+      <button id="viewBuild" aria-pressed="false">Build view</button>
+      <button id="restart">Restart</button>
+      <button id="theme" aria-label="Switch colour theme">Theme</button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="lede">
+    <h1>Sharing the Road: right-of-way, stopped school buses, assured clear distance</h1>
+    <p>One unit of Ohio driver education, built the way I would build the other seventy-nine pages.
+    Three content pages, three graded question pages, two remediation branches, and completion that
+    a student cannot click past.</p>
+    <p>Answer the second question wrong on purpose. The remediation branch is the part of a Moodle
+    Lesson that is easy to configure and easy to configure incorrectly, so it is the part worth
+    showing. <strong>Build view</strong> exposes the jump table, the completion conditions and the
+    decision log behind whatever you just did.</p>
+  </div>
+
+  <main id="main">
+    <div class="progress-bar"><div class="progress-fill" id="bar"></div></div>
+    <div class="progress-row">
+      <span id="progressText">Page 1 of 6</span>
+      <span id="gradeText">0 of 3 questions passed</span>
+    </div>
+
+    <div id="stage" aria-live="polite"></div>
+  </main>
+
+  <section id="build" class="hidden" aria-label="Build documentation">
+    <div class="panel">
+      <h2>Jump table</h2>
+      <p class="sub">What a Moodle Lesson actually stores. Every answer on every question page points
+      somewhere explicit. Leaving one on the default <span class="mono">Next page</span> is how a
+      student sails past the thing they got wrong.</p>
+      <div class="scroll-x"><table>
+        <caption>Unit 4 &middot; lesson jumps as configured</caption>
+        <thead><tr><th scope="col">From</th><th scope="col">On</th><th scope="col">Jumps to</th><th scope="col">Why</th></tr></thead>
+        <tbody id="jumpTable"></tbody>
+      </table></div>
+    </div>
+
+    <div class="panel">
+      <h2>Page flow</h2>
+      <p class="sub">Solid lines run forward. Dashed lines are the remediation loops. The current page
+      is outlined.</p>
+      <div class="flow" id="flow"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Settings worth writing down</h2>
+      <p class="sub">The settings that change whether a student can finish the unit without learning
+      it. These are the ones I would document per unit so the next person does not have to
+      reverse-engineer them.</p>
+      <dl class="settings" id="settings"></dl>
+    </div>
+
+    <div class="panel">
+      <h2>Decision log</h2>
+      <p class="sub">Every page view, answer and jump this session, in order.</p>
+      <ul class="log" id="log"><li class="empty">Nothing yet. Work through the lesson and come back.</li></ul>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p><strong>On the law.</strong> Every legal statement on these pages carries the Ohio Revised Code
+    section it comes from, and the same citations are tagged onto the matching questions in
+    <span class="mono">moodle/unit-04-questions.xml</span>. <span class="mono">node moodle/check.mjs</span>
+    fails if a question loses its citation tag or its feedback. Before publication this content still
+    has to be checked against the current Ohio Digest of Motor Vehicle Laws and the state curriculum,
+    which is a step in <span class="mono">docs/qa-checklist.md</span>, not an assumption.</p>
+    <p>Sources: R.C. 4511.01, 4511.21, 4511.41, 4511.43, 4511.75. Full list in
+    <span class="mono">docs/sources.md</span>. Sample content, not a licensed course.</p>
+  </footer>
+</div>
+
+<script>
+"use strict";
+
+/* ---------------------------------------------------------------------------
+   Unit 4 of a ten-unit Ohio driver education course.
+
+   The shape of this data is the shape of a Moodle Lesson: an ordered set of
+   pages, where every answer on every question page names the page it jumps to.
+   Remediation is not a separate feature in Moodle. It is a jump you remembered
+   to set.
+--------------------------------------------------------------------------- */
+
+const PAGES = [
+
+  { id: "P4.1", kind: "content", track: "main",
+    label: "Right-of-way is a preference you can lose",
+    cites: ["R.C. 4511.01", "R.C. 4511.41", "R.C. 4511.43"],
+    body: `
+      <p>Ohio does not define right-of-way as ownership of the intersection. It defines it as the
+      right to proceed <strong>uninterruptedly in a lawful manner</strong> in the direction you are
+      moving, in preference to someone approaching from a different direction into your path.
+      <span class="cite">R.C. 4511.01</span></p>
+
+      <p>Four of those words carry the whole unit: <em>in a lawful manner</em>. The preference is
+      attached to lawful movement. Take away the lawful movement and you can take away the
+      preference.</p>
+
+      <h3>The basic rule</h3>
+      <p>At an intersection with no signs or signals, when two vehicles arrive from different roads
+      at about the same time, the driver on the left yields to the vehicle on the right.
+      <span class="cite">R.C. 4511.41</span></p>
+
+      <h3>Stopping is not yielding</h3>
+      <p>At a stop sign, coming to a full stop discharges one duty. It does not discharge the other.
+      After stopping you still have to yield to traffic already in the intersection, and to traffic
+      close enough to be an immediate hazard. <span class="cite">R.C. 4511.43</span> A legal stop
+      followed by pulling out in front of someone is still a failure to yield.</p>
+
+      <div class="callout">
+        <span class="label">Carry this forward</span>
+        <p>Ohio courts have held that a driver keeps preferred status unless that driver broke a legal
+        requirement. Speed is the usual one. So <em>I had the right of way</em> answers a different
+        question than <em>was I driving lawfully</em>, and only the second one decides whether the
+        preference survives.</p>
+      </div>` },
+
+  { id: "P4.2", kind: "content", track: "main",
+    label: "A stopped school bus: direction decides first",
+    cites: ["R.C. 4511.75"],
+    body: `
+      <p>When a school bus stops with its red lights flashing to pick up or drop off children, you
+      stop at least <strong>ten feet</strong> from the front or rear of the bus. You stay stopped
+      until the bus starts moving again or the driver signals you to go.
+      <span class="cite">R.C. 4511.75</span></p>
+
+      <h3>The one exception</h3>
+      <p>On a highway divided into <strong>four or more traffic lanes</strong>, a driver
+      <em>meeting</em> the stopped bus, travelling the opposite direction, does not have to stop.
+      <span class="cite">R.C. 4511.75</span></p>
+
+      <p>Two things about that exception get missed, and both of them are on the test and on the
+      road:</p>
+      <ul>
+        <li>It never applies behind the bus. Travelling the same direction, you stop, on any road,
+        at any lane count.</li>
+        <li>The statute counts <strong>traffic lanes</strong>. Not medians, not grass strips, not
+        how divided the road feels.</li>
+      </ul>
+
+      <div class="callout">
+        <span class="label">Ask in this order</span>
+        <p><strong>1.</strong> Am I going the same direction as the bus, or the opposite?
+        Same direction, stop, and the second question never comes up.<br>
+        <strong>2.</strong> Opposite direction: does this road have four or more lanes? Yes, proceed
+        with caution. Fewer than four, stop.</p>
+      </div>` },
+
+  { id: "Q4.1", kind: "question", track: "main", checkpoint: "bus",
+    label: "Checkpoint: behind the bus",
+    cites: ["R.C. 4511.75"],
+    stem: `You are on a four-lane road, driving <strong>behind</strong> a school bus, the same
+      direction it is going. The bus stops and its red lights begin flashing. What do you do?`,
+    options: [
+      { text: "Stop at least ten feet behind the bus, and wait until it moves or the driver waves you on.",
+        correct: true, jump: "P4.3",
+        why: "The four-lane exception only covers drivers meeting the bus from the opposite direction. Behind it, nothing cancels the duty to stop." },
+      { text: "Slow down and pass carefully, because the road has four or more lanes.",
+        jump: "R4.2",
+        why: "The lane count is real, but it is the second question, and you only get to it travelling the opposite direction." },
+      { text: "Change lanes and keep going at normal speed, since another lane is open.",
+        jump: "R4.2",
+        why: "Another open lane changes nothing. The duty attaches to the flashing red lights, not to whether you can get around." },
+      { text: "Stop only if you can see children crossing in front of the bus.",
+        jump: "R4.2",
+        why: "The statute triggers on the stopped bus and its red lights, not on whether you can see a child. Most of the time you cannot." }
+    ] },
+
+  { id: "R4.2", kind: "remediation", track: "remed", next: "Q4.1b",
+    label: "Review: direction first, then lanes",
+    cites: ["R.C. 4511.75"],
+    body: `
+      <p>Read the exception again with its subject attached. It covers a driver <strong>meeting</strong>
+      a stopped school bus: coming the other way, on a highway of four or more traffic lanes.
+      <span class="cite">R.C. 4511.75</span></p>
+
+      <p>Behind the bus, going the same direction, you are not meeting it. You are overtaking it, and
+      the ordinary rule applies with nothing to cancel it: stop ten feet back, wait.</p>
+
+      <h3>Why the exception is survivable</h3>
+      <p>Ohio also requires buses on divided highways, and on roads of four or more lanes, to load and
+      unload children on their <strong>residence side</strong> of the road. That is what makes it safe
+      for oncoming traffic to keep moving: the children are not crossing in front of them.</p>
+
+      <div class="callout">
+        <span class="label">Two questions, in order</span>
+        <p><strong>Same direction?</strong> Stop. Done.<br>
+        <strong>Opposite direction?</strong> Then count lanes. Four or more, proceed with caution.
+        Fewer, stop.</p>
+      </div>
+      <p>One more question and you are back on the main path.</p>` },
+
+  { id: "Q4.1b", kind: "question", track: "remed", checkpoint: "bus",
+    label: "Re-check: meeting the bus",
+    cites: ["R.C. 4511.75"],
+    stem: `Different road: two lanes, one in each direction. A school bus stops ahead of you in the
+      <strong>oncoming</strong> lane, red lights flashing. What do you do?`,
+    options: [
+      { text: "Stop at least ten feet away and wait for the bus to move or the driver to signal you on.",
+        correct: true, jump: "P4.3",
+        why: "Opposite direction, so you check lanes. Two lanes is fewer than four, so the exception does not apply and you stop." },
+      { text: "Proceed with caution, because you are travelling the opposite direction.",
+        jump: "P4.2",
+        why: "Opposite direction only gets you to the lane question. This road has two lanes, so you stop." },
+      { text: "Keep going at normal speed, because the bus is not in your lane.",
+        jump: "P4.2",
+        why: "On a two-lane road a child crossing to the far side crosses your lane. That is exactly the case the rule exists for." }
+    ] },
+
+  { id: "P4.3", kind: "content", track: "main",
+    label: "Assured clear distance: the posted limit is a ceiling",
+    cites: ["R.C. 4511.21"],
+    body: `
+      <p>Ohio law says no person shall drive at a greater speed than will permit bringing the vehicle
+      to a stop <strong>within the assured clear distance ahead</strong>.
+      <span class="cite">R.C. 4511.21</span></p>
+
+      <p>Plainly: your lawful speed is whatever lets you stop inside the distance you can actually see
+      to be clear. That distance is not a property of the road. It changes minute to minute.</p>
+
+      <ul>
+        <li>Fog, heavy rain or snow shorten what you can see to be clear.</li>
+        <li>A blind crest or a curve shortens it to where the road disappears.</li>
+        <li>Ice lengthens the distance you need, which does the same thing from the other side.</li>
+        <li>A stopped car in your lane collapses it to whatever gap is left.</li>
+      </ul>
+
+      <p>The same section also requires a speed that is reasonable and proper for the conditions. So
+      there are always two limits in force: the number on the sign, and the one the conditions set.
+      The lower one governs.</p>
+
+      <div class="callout">
+        <span class="label">Back to page one</span>
+        <p>Driving faster than you can stop is not proceeding in a lawful manner. That is the exact
+        condition Ohio attaches to right-of-way, which is where this unit ends.</p>
+      </div>` },
+
+  { id: "Q4.2", kind: "question", track: "main", checkpoint: "acda",
+    label: "Checkpoint: speed and conditions",
+    cites: ["R.C. 4511.21"],
+    stem: `Posted limit 55. Dense fog: you can see about 100 feet. You are driving 52 when you
+      rear-end a car stopped in your lane. Can you be cited for your speed?`,
+    options: [
+      { text: "Yes. Assured clear distance sets a lower lawful speed than the sign when you cannot see far.",
+        correct: true, jump: "Q4.3",
+        why: "At 100 feet of visibility the question is not what the sign says. It is whether you could stop in 100 feet, and at 52 mph you could not." },
+      { text: "No. You were under the posted limit, so your speed was lawful.",
+        jump: "R4.3",
+        why: "The posted limit is a maximum for good conditions, not a guarantee that any speed under it is lawful." },
+      { text: "No. The other driver caused it by stopping in a travel lane.",
+        jump: "R4.3",
+        why: "Whatever the other driver did, the duty to be able to stop within the distance you can see is yours." },
+      { text: "Only if the fog had already been reported to the state.",
+        jump: "R4.3",
+        why: "Nothing in the statute waits on a report. The conditions in front of you are the conditions." }
+    ] },
+
+  { id: "R4.3", kind: "remediation", track: "remed", next: "Q4.3",
+    label: "Review: there are always two speed limits",
+    cites: ["R.C. 4511.21"],
+    body: `
+      <p>The posted number is the maximum under good conditions. Assured clear distance is the second
+      limit, and it moves. <span class="cite">R.C. 4511.21</span> Whichever is lower is the one you
+      are held to.</p>
+
+      <p>Run the fog case as an arithmetic question rather than a legal one. You can see 100 feet. At
+      52 mph you are covering about 76 feet every second, so reaction time alone eats most of the
+      100 feet before the brakes do anything. You cannot stop in the distance you can see to be
+      clear, so 52 is over the limit that was actually in force.</p>
+
+      <div class="callout">
+        <span class="label">The habit this builds</span>
+        <p>When visibility drops, the question stops being <em>what is the limit here</em> and becomes
+        <em>how far can I see, and can I stop in it</em>.</p>
+      </div>` },
+
+  { id: "Q4.3", kind: "question", track: "main", checkpoint: "row",
+    label: "Checkpoint: putting the unit together",
+    cites: ["R.C. 4511.01", "R.C. 4511.41"],
+    stem: `An intersection with no signs or signals. You are the vehicle on the right, doing 45 in a
+      25. A car arrives from your left at about the same moment and you collide. Being on the right
+      put the other driver in the yielding position. Where does that leave you?`,
+    options: [
+      { text: "You can lose the preference, because Ohio attaches right-of-way to proceeding in a lawful manner, and 45 in a 25 is not lawful.",
+        correct: true, jump: "END",
+        why: "Both halves of this unit meet here. The preference is defined as the right to proceed uninterruptedly in a lawful manner, and Ohio courts have held a driver keeps preferred status unless that driver broke a legal requirement. Speeding is one." },
+      { text: "You keep the right-of-way. The rule is about position, not speed.",
+        jump: "P4.1",
+        why: "Position is how the rule picks who yields. Lawful movement is the condition on keeping the preference once it is picked." },
+      { text: "The right-of-way rule does not apply at all without signs.",
+        jump: "P4.1",
+        why: "An uncontrolled intersection is precisely where the vehicle-on-the-right rule does its work." },
+      { text: "You keep the right-of-way, and the two of you share the fine.",
+        jump: "P4.1",
+        why: "Right-of-way is not split. Each driver's own conduct is measured against what the law required of that driver." }
+    ] }
+];
+
+const CHECKPOINTS = ["bus", "acda", "row"];
+const MAIN = PAGES.filter(p => p.track === "main").map(p => p.id);
+const byId = id => PAGES.find(p => p.id === id);
+
+const SETTINGS = [
+  ["Lesson &rsaquo; Flow control &rsaquo; Allow student review", "No", "Review lets a student walk back into a question they already failed and pick the other option. The remediation jump is the review."],
+  ["Flow control &rsaquo; Provide option to try a question again", "No", "Leaving this on hands out an unlimited retry in place of the remediation page, and the branch never fires."],
+  ["Flow control &rsaquo; Action after correct answer", "Normal - follow lesson path", "Anything else overrides the per-answer jumps that carry this whole unit."],
+  ["Flow control &rsaquo; Maximum number of attempts", "1", "Per question, per visit. A second attempt is a second pass through the branch."],
+  ["Grade &rsaquo; Practice lesson", "No", "A practice lesson records no grade, so completion can never be satisfied."],
+  ["Grade &rsaquo; Grade to pass", "100%", "Three checkpoints, all required. A driver education unit has no partial credit worth having."],
+  ["Grade &rsaquo; Re-takes allowed", "Yes", "Handling of re-takes: use maximum."],
+  ["Grade &rsaquo; Minimum number of questions", "3", "Stops a short path through the lesson from producing an inflated percentage."],
+  ["Completion &rsaquo; Require view", "Yes", "All content pages."],
+  ["Completion &rsaquo; Require grade + passing grade", "Yes", "Both. Require grade alone marks a failing attempt complete."],
+  ["Completion &rsaquo; Require end of lesson reached", "Yes", "Closing the tab on the last question is not finishing the unit."],
+  ["Question bank category", "$course$/top/Unit 04 - Sharing the Road", "Set in the import file, so the import lands in the right category without hand-sorting."],
+  ["Import format", "Moodle XML", "moodle/unit-04-questions.xml"]
+];
+
+/* --------------------------------------------------------------- state */
+
+const S = { page: "P4.1", picked: null, graded: false, seen: new Set(), passed: new Set(), log: [] };
+const T0 = Date.now();
+let booted = false;
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+function stamp() {
+  const s = Math.floor((Date.now() - T0) / 1000);
+  return String(Math.floor(s / 60)) + ":" + String(s % 60).padStart(2, "0");
+}
+
+function note(html, cls) {
+  S.log.push({ t: stamp(), html: html, cls: cls || "" });
+  drawLog();
+}
+
+/* --------------------------------------------------------------- render */
+
+function draw() {
+  const p = byId(S.page);
+  const stage = $("stage");
+
+  if (S.page === "END") { drawDone(stage); drawProgress(); drawFlow(); return; }
+
+  if (!S.seen.has(p.id)) {
+    S.seen.add(p.id);
+    note("viewed <b>" + esc(p.id) + "</b> " + esc(p.label));
+  }
+
+  stage.innerHTML = (p.kind === "question") ? questionHTML(p) : contentHTML(p);
+  wire(p);
+  drawProgress();
+  drawFlow();
+}
+
+function kindLabel(p) {
+  if (p.kind === "question") return "Question page";
+  if (p.kind === "remediation") return "Remediation branch";
+  return "Content page";
+}
+
+function citeLine(p) {
+  return '<p class="cite-list"><strong>Sources on this page:</strong> ' + p.cites.join(", ") + "</p>";
+}
+
+function contentHTML(p) {
+  const remed = p.kind === "remediation";
+  return '<article class="page">'
+    + '<span class="page-kind' + (remed ? " remed" : "") + '">' + kindLabel(p) + " &middot; " + esc(p.id) + "</span>"
+    + "<h2>" + esc(p.label) + "</h2>"
+    + p.body
+    + citeLine(p)
+    + '<div class="nav"><button class="primary" id="go">Continue</button>'
+    + '<span class="note">' + (remed ? "Returns you to the question you missed." : "Moves to the next page in the unit.") + "</span></div>"
+    + "</article>";
+}
+
+function questionHTML(p) {
+  const opts = p.options.map((o, i) =>
+    '<label class="opt" data-i="' + i + '">'
+    + '<input type="radio" name="answer" value="' + i + '">'
+    + '<span class="box"><span class="mark" aria-hidden="true">' + "ABCD"[i] + "</span>"
+    + "<span>" + esc(o.text) + '<span class="tagline"></span></span></span></label>'
+  ).join("");
+
+  return '<article class="page">'
+    + '<span class="page-kind">' + kindLabel(p) + " &middot; " + esc(p.id) + "</span>"
+    + "<h2>" + esc(p.label) + "</h2>"
+    + '<form id="qform"><fieldset><legend>' + p.stem + "</legend>" + opts + "</fieldset>"
+    + '<div class="nav"><button type="submit" class="primary" id="submit" disabled>Submit answer</button></div>'
+    + "</form>"
+    + '<div id="verdict"></div>'
+    + citeLine(p)
+    + "</article>";
+}
+
+function drawDone(stage) {
+  const cleared = CHECKPOINTS.every(c => S.passed.has(c));
+  const tookRemed = S.log.some(e => e.cls === "jump" && /R4\./.test(e.html));
+  stage.innerHTML = '<div class="done">'
+    + "<h2>Unit 4 complete</h2>"
+    + "<p>Moodle would mark the activity complete at this point, because all three conditions are"
+    + " satisfied rather than just the one that is easy to satisfy:</p>"
+    + "<ul><li>Every content page viewed.</li>"
+    + "<li>A grade recorded, and that grade at or above the pass mark (" + S.passed.size + " of 3 checkpoints).</li>"
+    + "<li>End of lesson reached.</li></ul>"
+    + "<p>" + (tookRemed
+        ? "You went through at least one remediation branch and came back. That is the path that matters: the student who missed something is the reason the unit is here."
+        : "You cleared it without a remediation branch. Miss the school bus question on purpose and run it again to see the branch work.")
+    + "</p>"
+    + '<div class="nav"><button class="primary" id="again">Run it again</button>'
+    + '<button id="toBuild">Open build view</button></div></div>';
+  $("again").addEventListener("click", restart);
+  $("toBuild").addEventListener("click", () => setView("build"));
+  if (cleared) note("<b>unit complete</b> &middot; all completion conditions met", "jump");
+}
+
+/* --------------------------------------------------------------- behaviour */
+
+function wire(p) {
+  if (p.kind !== "question") {
+    const go = $("go");
+    go.addEventListener("click", () => {
+      const next = p.kind === "remediation" ? nextAfterRemediation(p) : nextInOrder(p);
+      note("continue from <b>" + esc(p.id) + "</b> to <b>" + esc(next) + "</b>", "jump");
+      goTo(next);
+    });
+    if (booted) go.focus();
+    return;
+  }
+
+  const form = $("qform");
+  const submit = $("submit");
+
+  form.addEventListener("change", e => {
+    if (e.target.name !== "answer") return;
+    S.picked = Number(e.target.value);
+    submit.disabled = false;
+  });
+
+  form.addEventListener("submit", e => {
+    e.preventDefault();
+    if (S.picked === null || S.graded) return;
+    grade(p, S.picked);
+  });
+}
+
+function grade(p, i) {
+  S.graded = true;
+  const o = p.options[i];
+  const right = !!o.correct;
+
+  document.querySelectorAll(".opt").forEach(el => {
+    const k = Number(el.dataset.i);
+    el.classList.add("locked");
+    el.querySelector("input").disabled = true;
+    const tagline = el.querySelector(".tagline");
+    if (p.options[k].correct) {
+      el.classList.add("is-right");
+      tagline.textContent = k === i ? "Your answer, correct" : "Correct answer";
+    } else if (k === i) {
+      el.classList.add("is-wrong");
+      tagline.textContent = "Your answer, incorrect";
+    }
+  });
+  $("submit").disabled = true;
+
+  if (right && p.checkpoint) S.passed.add(p.checkpoint);
+
+  note("answered <b>" + esc(p.id) + "</b> option " + "ABCD"[i] + " &middot; " + (right ? "correct" : "incorrect"));
+  note("jump <b>" + esc(p.id) + "</b> &rarr; <b>" + esc(o.jump) + "</b>", "jump");
+
+  const v = $("verdict");
+  v.className = "verdict " + (right ? "right" : "wrong");
+  v.innerHTML = '<p class="head">' + (right ? "Correct" : "Not quite") + "</p><p>" + esc(o.why) + "</p>"
+    + '<div class="nav"><button class="primary" id="go">'
+    + (right ? (o.jump === "END" ? "Finish the unit" : "Continue") : "Go to review")
+    + "</button><span class=\"note\">Jumps to " + esc(o.jump) + ", as configured on this answer.</span></div>";
+
+  $("go").addEventListener("click", () => goTo(o.jump));
+  $("go").focus();
+  drawProgress();
+}
+
+function nextInOrder(p) {
+  const i = MAIN.indexOf(p.id);
+  return i >= 0 && i < MAIN.length - 1 ? MAIN[i + 1] : "END";
+}
+
+function nextAfterRemediation(p) {
+  return p.next;
+}
+
+function goTo(id) {
+  S.page = id;
+  S.picked = null;
+  S.graded = false;
+  draw();
+  window.scrollTo({ top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+}
+
+function restart() {
+  S.page = "P4.1"; S.picked = null; S.graded = false;
+  S.seen = new Set(); S.passed = new Set(); S.log = [];
+  drawLog();
+  draw();
+}
+
+/* --------------------------------------------------------------- chrome */
+
+function drawProgress() {
+  const seenMain = MAIN.filter(id => S.seen.has(id)).length;
+  const pos = S.page === "END" ? MAIN.length : Math.max(seenMain, 1);
+  $("bar").style.width = Math.round((pos / MAIN.length) * 100) + "%";
+  $("progressText").textContent = S.page === "END"
+    ? "Unit complete"
+    : "Main path: " + pos + " of " + MAIN.length + " pages";
+  $("gradeText").textContent = S.passed.size + " of 3 checkpoints passed";
+}
+
+function drawLog() {
+  const ul = $("log");
+  if (!S.log.length) { ul.innerHTML = '<li class="empty">Nothing yet. Work through the lesson and come back.</li>'; return; }
+  ul.innerHTML = S.log.map(e =>
+    '<li class="' + e.cls + '"><span class="t">' + e.t + '</span><span class="m">' + e.html + "</span></li>"
+  ).join("");
+}
+
+function drawJumpTable() {
+  const rows = [];
+  PAGES.forEach(p => {
+    if (p.kind === "question") {
+      p.options.forEach((o, i) => rows.push([p.id, "answer " + "ABCD"[i] + (o.correct ? " (correct)" : ""), o.jump, o.why]));
+    } else {
+      const next = p.kind === "remediation" ? nextAfterRemediation(p) : nextInOrder(p);
+      rows.push([p.id, "continue", next, p.kind === "remediation" ? "Returns to the re-check, not to the start of the unit." : "Next page on the main path."]);
+    }
+  });
+  $("jumpTable").innerHTML = rows.map(r =>
+    "<tr><td><code>" + esc(r[0]) + "</code></td><td>" + esc(r[1])
+    + "</td><td><code>" + esc(r[2]) + "</code></td><td>" + esc(r[3]) + "</td></tr>"
+  ).join("");
+}
+
+function drawFlow() {
+  const order = ["P4.1", "P4.2", "Q4.1", "R4.2", "Q4.1b", "P4.3", "Q4.2", "R4.3", "Q4.3"];
+  const html = order.map((id, n) => {
+    const p = byId(id);
+    const cls = p.kind === "question" ? "q" : (p.kind === "remediation" ? "r" : "");
+    const now = id === S.page ? " now" : "";
+    const node = '<div class="node ' + cls + now + '"><span class="id">' + esc(id) + "</span>" + esc(p.label) + "</div>";
+    const side = p.track === "remed"
+      ? '<div class="arm">off-path: reached only by a wrong answer</div>'
+      : "<div></div>";
+    const tick = n < order.length - 1
+      ? '<div class="tick' + (p.track === "remed" ? " back" : "") + '"></div>'
+      : "";
+    return '<div class="flow-row">' + node + side + "</div>" + tick;
+  }).join("");
+  $("flow").innerHTML = html
+    + '<div class="flow-row"><div class="node' + (S.page === "END" ? " now" : "") + '"><span class="id">END</span>Unit complete</div><div></div></div>';
+}
+
+function drawSettings() {
+  $("settings").innerHTML = SETTINGS.map(s =>
+    "<div><dt>" + s[0] + "</dt><dd>" + esc(s[1]) + '<br><span style="font-family:var(--sans);color:var(--ink-3)">' + esc(s[2]) + "</span></dd></div>"
+  ).join("");
+}
+
+function setView(which) {
+  const build = which === "build";
+  $("build").classList.toggle("hidden", !build);
+  $("main").classList.toggle("hidden", build);
+  $("viewBuild").setAttribute("aria-pressed", String(build));
+  $("viewStudent").setAttribute("aria-pressed", String(!build));
+  if (build) { drawJumpTable(); drawSettings(); drawFlow(); drawLog(); $("build").scrollIntoView({ block: "start" }); }
+}
+
+$("viewStudent").addEventListener("click", () => setView("student"));
+$("viewBuild").addEventListener("click", () => setView("build"));
+$("restart").addEventListener("click", () => { restart(); setView("student"); });
+$("theme").addEventListener("click", () => {
+  const root = document.documentElement;
+  const dark = matchMedia("(prefers-color-scheme: dark)").matches;
+  const now = root.getAttribute("data-theme") || (dark ? "dark" : "light");
+  root.setAttribute("data-theme", now === "dark" ? "light" : "dark");
+});
+
+draw();
+booted = true;
+drawJumpTable();
+drawSettings();
+</script>
+</body>
+</html>
