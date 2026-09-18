@@ -76,23 +76,23 @@ nobody wastes a human on something a script does better.
 
 ## Where I am weaker, stated plainly
 
-**Moodle.** My hands-on Moodle before this was editing existing courses at work:
-sales training, and training for medical aesthetic services. I had editing
-rights, changed pages and updated material. I had not built a course from
+**Moodle.** My hands-on Moodle before this was editing existing courses at work,
+both of them sales training, one of those for medical aesthetic services. I had
+editing rights, changed pages and updated material. I had not built a course from
 scratch, configured Lesson jumps, or imported a question bank. What I know about
 the jump model and Moodle XML, I learned building the unit attached to this
 application, and I would rather tell you that now than have you find it out in
 week three.
 
-The aesthetics material is the closer parallel to this job. It is content where
-being approximately right is not good enough, and where the person editing the
-page is not the person who owns clinical sign-off. That is the arrangement I am
-asking for here, and I have worked inside it rather than only proposing it.
+What carries over is the shape of the work rather than the subject. Source
+material arrives as documents somebody else wrote, and the job is getting it into
+the LMS intact, consistent, and in the right order. That is your first Phase 1
+bullet, and it is the part I have done before.
 
-The part that does change is the audience. Both of those courses taught adults
-who were being paid to be there. This one teaches sixteen year olds on a phone
-who would rather be doing anything else, and that is why the sample is written
-the way it is.
+What does not carry over is the audience. Those courses taught adults who were
+being paid to be there, and they taught persuasion. This one teaches sixteen year
+olds on a phone who would rather be doing anything else, and it teaches law. That
+is a different job, and it is why the sample is written the way it is.
 
 I have also not administered a production install for a regulated program, and I
 have not been through ODPS approval or the state's record-keeping requirements.

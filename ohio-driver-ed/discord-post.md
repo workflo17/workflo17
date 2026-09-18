@@ -22,7 +22,7 @@ Answer the school bus question wrong on purpose. The remediation branch is the p
 
 It also ships a checker (`node moodle/check.mjs`, no dependencies) that fails when a jump points at a renamed page, a distractor loses its feedback, a question loses its citation tag, or a checkpoint has no question left in the bank. It caught a real bug in the sample while I was building it.
 
-Straight about where I come from: my Moodle before this was editing existing courses at work, sales training and training for medical aesthetic services, and what I know about Lesson jumps and XML I learned building the unit above. I am not a licensed instructor either, so legal sign-off should sit with someone qualified. What I do bring to Phase 2 is years of sales, which is the same job as student support by email, chat and phone, just with a different thing on the other end of the call.
+Straight about where I come from: my Moodle before this was editing existing sales training courses at work, one of them for medical aesthetic services, and what I know about Lesson jumps and XML I learned building the unit above. I am not a licensed instructor either, so legal sign-off should sit with someone qualified. What I do bring to Phase 2 is years of sales, which is the same job as student support by email, chat and phone, just with a different thing on the other end of the call.
 
 Full write-up, including what I would want clear about the profit share before committing: https://github.com/workflo17/workflo17/blob/claude/ohio-driver-education-app-dhkuux/ohio-driver-ed/application.md
 
