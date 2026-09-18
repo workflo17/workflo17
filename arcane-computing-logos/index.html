@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Arcane Computing — logo marks</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;500&amp;family=Archivo:wght@400;500;600&amp;display=swap">
+<style>
+  :root { --bg:#FAF9F5; --ink:#1A1A18; --cap:#5E5E58; --hair:#E2E0D8; --panel:#FFFFFF; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --bg:#141414; --ink:#F2F1EC; --cap:#A3A29C; --hair:#2E2E2B; --panel:#1D1D1C; }
+  }
+  :root[data-theme="dark"] { --bg:#141414; --ink:#F2F1EC; --cap:#A3A29C; --hair:#2E2E2B; --panel:#1D1D1C; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+         font-family:'Archivo',system-ui,sans-serif; padding:56px 16px 80px; }
+  .wrap { max-width:1000px; margin:0 auto; }
+  h1 { font-family:'Spectral',Georgia,serif; font-weight:500; font-size:clamp(30px,6vw,46px);
+       letter-spacing:-0.01em; margin:0 0 12px; }
+  p.lede { margin:0 0 8px; color:var(--cap); font-size:15px; line-height:1.6; max-width:58ch; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(176px,1fr)); gap:26px; }
+  .card { border:1px solid var(--hair); border-radius:12px; overflow:hidden; background:var(--panel); }
+  .face { height:148px; display:flex; align-items:center; justify-content:center; background:#FFFFFF; }
+  .face img { width:84px; height:84px; }
+  .half { flex:1 1 0; align-self:stretch; display:flex; align-items:center; justify-content:center; }
+  .half.light { background:#FFFFFF; }
+  .half.dark { background:#101112; }
+  .half img { width:62px; height:62px; }
+  .meta { padding:14px 16px; border-top:1px solid var(--hair); }
+  .num { font-size:10.5px; font-weight:600; letter-spacing:0.18em; color:var(--cap); }
+  .name { font-size:14px; font-weight:600; margin-top:3px; }
+  .note { font-size:12px; color:var(--cap); margin-top:5px; line-height:1.5; }
+  h2 { font-size:11px; font-weight:600; letter-spacing:0.2em; color:var(--cap); margin:48px 0 18px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Arcane Computing &mdash; logo marks</h1>
+  <p class="lede">Five directions, first round. Each mark is drawn on a 120&times;120 grid as plain
+  SVG, so it scales to a van door or down to a 16-pixel tray icon without being redrawn.</p>
+  <p class="lede">Every one also ships a one-colour version, solid and reversed, for cut vinyl,
+  etching and embroidery.</p>
+
+  <h2>FULL COLOUR</h2>
+  <div class="grid">
+    <div class="card"><div class="face"><img src="svg/01-seal.svg" alt="Seal mark"></div>
+      <div class="meta"><div class="num">01</div><div class="name">Seal</div>
+      <div class="note">The A as a rune, inside a seal of office.</div></div></div>
+    <div class="card"><div class="face"><img src="svg/02-keystone.svg" alt="Keystone mark"></div>
+      <div class="meta"><div class="num">02</div><div class="name">Keystone</div>
+      <div class="note">Flat-topped A: the stone that holds the arch up.</div></div></div>
+    <div class="card"><div class="face"><img src="svg/03-astrolabe.svg" alt="Astrolabe mark"></div>
+      <div class="meta"><div class="num">03</div><div class="name">Astrolabe</div>
+      <div class="note">A star chart and a network diagram are one drawing.</div></div></div>
+    <div class="card"><div class="face"><img src="svg/04-ward.svg" alt="Ward mark"></div>
+      <div class="meta"><div class="num">04</div><div class="name">Ward</div>
+      <div class="note">A vault with a keyhole, and a trace running out of it.</div></div></div>
+    <div class="card"><div class="face"><img src="svg/05-trace.svg" alt="Trace mark"></div>
+      <div class="meta"><div class="num">05</div><div class="name">Trace</div>
+      <div class="note">One wire, one via.</div></div></div>
+  </div>
+
+  <h2>ONE COLOUR &middot; SOLID AND REVERSED</h2>
+  <div class="grid">
+    <div class="card"><div class="face split"><div class="half light"><img src="svg/01-seal-mono.svg" alt="Seal, one colour"></div><div class="half dark"><img src="svg/01-seal-reversed.svg" alt="Seal, one colour reversed"></div></div>
+      <div class="meta"><div class="num">01</div><div class="name">Seal</div></div></div>
+    <div class="card"><div class="face split"><div class="half light"><img src="svg/02-keystone-mono.svg" alt="Keystone, one colour"></div><div class="half dark"><img src="svg/02-keystone-reversed.svg" alt="Keystone, one colour reversed"></div></div>
+      <div class="meta"><div class="num">02</div><div class="name">Keystone</div></div></div>
+    <div class="card"><div class="face split"><div class="half light"><img src="svg/03-astrolabe-mono.svg" alt="Astrolabe, one colour"></div><div class="half dark"><img src="svg/03-astrolabe-reversed.svg" alt="Astrolabe, one colour reversed"></div></div>
+      <div class="meta"><div class="num">03</div><div class="name">Astrolabe</div></div></div>
+    <div class="card"><div class="face split"><div class="half light"><img src="svg/04-ward-mono.svg" alt="Ward, one colour"></div><div class="half dark"><img src="svg/04-ward-reversed.svg" alt="Ward, one colour reversed"></div></div>
+      <div class="meta"><div class="num">04</div><div class="name">Ward</div></div></div>
+    <div class="card"><div class="face split"><div class="half light"><img src="svg/05-trace-mono.svg" alt="Trace, one colour"></div><div class="half dark"><img src="svg/05-trace-reversed.svg" alt="Trace, one colour reversed"></div></div>
+      <div class="meta"><div class="num">05</div><div class="name">Trace</div></div></div>
+  </div>
+</div>
+</body>
+</html>
