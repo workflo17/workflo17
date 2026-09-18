@@ -76,14 +76,20 @@ nobody wastes a human on something a script does better.
 
 ## Where I am weaker, stated plainly
 
-**Moodle.** Self-taught. I have built and edited Moodle courses for my own
-projects, so I know the Lesson activity's jump model, question bank categories
-and Moodle XML import from having done it rather than from reading about it. I
-have not administered a production Moodle 4.5 install for a regulated program,
-and I have not been through ODPS course approval or the state's record-keeping
-requirements. On a real install I would want a first week shadowing whoever
-knows your approval constraints, and I would expect my first unit to come back
-with corrections.
+**Moodle.** My hands-on Moodle before this was editing an existing course at
+work. I had editing rights, changed pages and updated material. I had not built
+a course from scratch, configured Lesson jumps, or imported a question bank.
+What I know about the jump model and Moodle XML, I learned building the unit
+attached to this application, and I would rather tell you that now than have you
+find it out in week three.
+
+I have also not administered a production install for a regulated program, and I
+have not been through ODPS approval or the state's record-keeping requirements.
+On a real install I would want a first week shadowing whoever knows your approval
+constraints, and I would expect my first unit to come back with corrections.
+
+What that also means is that some of the curve is already paid. The unit in this
+folder is what the first stretch of it produced, checker included.
 
 **No formal programming background.** Everything on my portfolio is built by
 directing AI coding agents, and I say so on my profile rather than letting
@@ -102,13 +108,24 @@ someone qualified to give it, and I would rather that be explicit from the start
 ## Phase 2
 
 I am applying for both phases and I consent to the federal and state background
-checks. Building the course is the right preparation for supporting it: the
-person who configured the jumps is the person who can tell in one question
-whether a student is stuck on the content or stuck on the navigation, and the
-support requests are the best evidence you will get about which of the eighty
-pages is not doing its job. I would want those requests logged against the page
-that caused them, so Phase 2 feeds back into the curriculum instead of just
-answering the same question forever.
+checks.
+
+Most of my working life has been in sales. Phase 2 is email, chat, forum and
+telephone support for sixteen to twenty-one year olds and, more often, their
+parents, and that is work I have actually done for years, at volume, with
+someone counting. Reading a frustrated message and working out in two questions
+whether the stated problem is the real one. Writing plainly to a person who did
+not want to be reading anything. Logging every contact so the next person is not
+starting cold. Knowing the difference between a question you answer and a
+question you escalate. That is the Phase 2 list, and it is the part of this job I
+have the most mileage in.
+
+Building the course is the other half of it. The person who configured the jumps
+can tell in one question whether a student is stuck on the content or stuck on
+the navigation. And support requests are the best evidence you will ever get
+about which of the eighty pages is not doing its job, so I would want them logged
+against the page that caused them. Phase 2 should feed corrections back into the
+curriculum rather than answer the same question forever.
 
 ---
 
