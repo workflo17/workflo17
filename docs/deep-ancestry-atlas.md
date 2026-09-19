@@ -300,13 +300,14 @@ assert origins for living communities who have their own account of where they c
 
 | Phase | Scope | Rough effort |
 |---|---|---|
-| **0 — Engine** | Globe, time scrubber, tree-as-network, particles, selection. Scaffold data. | **done — see the prototype** |
-| **1 — Real points** | Parse AADR `.anno`; 17.6k real dated samples; density layer; date error bars. Ship it. | ~1–2 weeks |
-| **2 — Real tree** | Nomenclature normalizer; attach samples; centroid ancestral locations; great-circle branches. | ~2–3 weeks |
+| **0 — Engine** | Globe, time scrubber, tree-as-network, particles, selection. | **done** |
+| **1 — Real points** | Real AADR v66: 19,029 dated georeferenced individuals, via the Poseidon `aadr-archive` (the Reich Lab host is unreachable from a sandbox; Poseidon republishes the same release as `.janno`). | **done** |
+| **2 — Real tree** | 701 Y and 705 mtDNA clades prefix-parsed from AADR haplogroup calls; centroid **and** oldest-member position estimators; oldest-observed dates rather than TMRCAs. | **done** |
 | **3 — Paleo-world** | `pastclim` land/ice masks per slice; animated coastlines and ice sheets. **Highest impact per hour of the whole plan.** | ~3–4 weeks |
 | **4 — Routing** | Cost surfaces, least-cost paths, offline precompute. | ~4 weeks |
 | **5 — Better inference** | Continuous phylogeography; render the posterior, not a line. | ~3–4 weeks |
 | **6 — Ancestry components** | qpAdm proportions as flowing ribbons — the modern framing. | open-ended |
+| **+ Evidence layers** | Radiocarbon, places, routes, language, societies, pathogens; coverage views; cross-layer query with cited export. | **done** |
 | **7 — Stories** | Guided tours of the set pieces; "find my line"; share links. | ~2 weeks |
 
 Running alongside these, the non-genetic data layers have their own sequence — radiocarbon
@@ -355,6 +356,19 @@ network requests except a web font. Open it directly in a browser.
   8.0; worst normal-vision ΔE 15.4 against a floor of 15.0), which is why they are not the
   obvious hues.
 
-**What is a scaffold:** the ~75 Y-DNA and ~41 mtDNA nodes are hand-entered from published
-consensus clade ages and approximate origin regions. They are illustrative, they are not a
-research dataset, and the app says so on its own face. Phase 1 replaces them.
+**What is a scaffold:** only the *reference backbone* mode — the ~75 Y and ~41 mtDNA hand-entered
+nodes — which the interface labels as not-observed. The default tree is derived from real data.
+
+### What the data turned out to say
+
+Three findings fell out of building it, all now surfaced in the interface rather than buried:
+
+- **99.3% of ancient genomes are younger than 15,000 BP** (radiocarbon: 95.8%). The deep-time
+  story this project exists to tell rests on well under 1% of the evidence. The coverage tab
+  plots this per layer, on a log scale, because it should condition every other view.
+- **The observed Y tree is a forest, not a tree.** Its macro-haplogroups have no connections
+  above them: the AADR's nomenclature does not encode the deep backbone, and no sampled
+  individual is basal enough to bridge them. The textbook single-rooted tree is an inference
+  the sampled record does not contain — which is exactly why the reference mode is labelled.
+- **The oldest genome in the AADR is 185,000 BP at 51.40°N, 84.67°E** — Denisova Cave. The
+  compendium reaches back past our own species, and a naive time axis will happily draw it.

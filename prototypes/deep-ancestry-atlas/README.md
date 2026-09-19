@@ -1,53 +1,70 @@
 # Deep Ancestry Atlas — prototype
 
-Open `index.html` in a browser. No build step, no dependencies, no server.
+A 3D globe carrying **262,000+ georeferenced records** from seven published datasets, plus a
+lineage tree derived from real ancient genomes, a cross-layer spatial query, and an export that
+carries citations.
 
-Plan and research: [`docs/deep-ancestry-atlas.md`](../../docs/deep-ancestry-atlas.md)
+Plan: [`docs/deep-ancestry-atlas.md`](../../docs/deep-ancestry-atlas.md) ·
+Layer research: [`docs/deep-ancestry-atlas-layers.md`](../../docs/deep-ancestry-atlas-layers.md)
 
-## What this is
+## Running it
 
-A working prototype of the rendering engine for a 3D human-migration atlas: hand-rolled
-WebGL2 globe, a dated lineage tree drawn as great-circle branches, GPU particle flow along
-the grown portion of each branch, and time carried as a single shader uniform so scrubbing
-300,000 years costs nothing.
-
-## Real vs. scaffold
-
-**Real:** the renderer, the time model, the geography — genuine Natural Earth 110m land
-polygons, resampled to 48,000 uniformly distributed points and shipped as an 8 KB bitmask —
-and the **ancient places layer**: 32,902 located sites from the Pleiades gazetteer of ancient
-places (v4.1, CC BY 3.0), at full coordinate precision, with the gazetteer's own accuracy
-flag preserved. Click any place for its citable record; select a lineage node for a radius
-query that exports CSV with a Pleiades URI per row.
-
-**Scaffold:** the lineage table. ~75 Y-DNA and ~41 mtDNA nodes hand-entered from published
-consensus clade ages and approximate origin regions. Illustrative, not a research dataset.
-Phase 1 of the plan replaces it with the Allen Ancient DNA Resource.
-
-## Regenerating the land mask
+`index.html` fetches its data from a sibling `d/` directory, so it needs a server, not `file://`:
 
 ```sh
-curl -O https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_land.geojson
-python3 build-landmask.py        # writes landmask.b64 → paste into LANDMASK in index.html
+cd build && ./fetch-sources.sh          # downloads every upstream source
+pip install pyreadr
+python3 build-tree.py                   # AADR haplogroup calls -> clade trees
+python3 build-layers.py                 # everything else -> out/
+cd .. && mkdir -p d && cp build/out/* d/
+python3 -m http.server 8000             # then open localhost:8000
 ```
 
-## Regenerating the places layer
+## Layers
 
-```sh
-for f in places.csv places_place_types.csv place_types.csv; do
-  curl -O "https://raw.githubusercontent.com/isawnyu/pleiades.datasets/main/data/gis/$f"
-  mv "$f" "pl_$f"
-done
-python3 build-sites.py    # writes sites.b64 + sites_titles.txt
-```
+| Layer | Records | Source | Licence |
+|---|---:|---|---|
+| Ancient genomes | 19,029 | AADR v66 via Poseidon `aadr-archive` | cite the AADR release DOI |
+| Radiocarbon dates | 175,426 | p3k14c (PEOPLE 3000) | see tDAR collection |
+| Ancient places | 32,902 | Pleiades gazetteer v4.1 | CC BY 3.0 |
+| Roads & routes | 3,840 polylines | AWMC (Barrington Atlas derived) | ODbL 1.0 |
+| Languages | 26,696 | Glottolog CLDF | CC BY 4.0 |
+| Documented societies | 1,291 | D-PLACE Ethnographic Atlas | CC BY 4.0 |
+| Ancient metagenomes | 3,241 | AncientMetagenomeDir (SPAAM) | CC BY 4.0 |
+| Land outlines | 48,000 points | Natural Earth 110m | public domain |
 
-Pleiades is CC BY 3.0. The script keeps only physically located places (dropping unlocated
-records, map labels, ethnic groups and regions — 32,902 of 41,480), classifies each into six
-renderable groups, and packs lat/lon as int32 at 1e-5 degrees so coordinates are not degraded.
+## The lineage tree is derived, not typed in
 
-## Land mask notes
+Haplogroup nomenclature **is** the topology — `R1b1a1` nests inside `R1b1` inside `R1b` — so the
+tree is built by prefix-parsing the AADR's own Y and mtDNA calls across 19,029 dated individuals.
+701 Y clades and 705 mtDNA clades come out of it.
 
-Natural Earth is public domain. The script samples a Fibonacci sphere (uniform density, no
-polar bunching), tests each point against the land polygons with holes handled, and emits a
-base64 bitmask. Point positions are regenerated from the index at load, so only the mask
-ships.
+Two honest constraints are built into the result, and stated in the interface:
+
+- **A node's date is its oldest observed member, not a TMRCA.** A clade is always older than the
+  oldest person we happened to dig up carrying it. Because clade membership is nested, the oldest
+  member of a parent is automatically at least as old as the oldest member of any child, so
+  branches always run forward in time without needing an assumption.
+- **A node's position is a summary statistic of where its carriers were excavated**, which is not
+  where the clade arose. The page offers both estimators — spherical centroid of all members, and
+  the location of the single oldest member — because they disagree, and the disagreement is the
+  point.
+
+A **reference backbone** mode carries the hand-entered published tree instead, for the deep
+structure the sampled record cannot reach. It is labelled as not-observed.
+
+## Things the data says that the interface makes you confront
+
+- **99.3% of ancient genomes are younger than 15,000 BP.** The deep-time story rests on <1% of
+  the evidence. The coverage tab plots this per layer.
+- **The observed Y tree is a forest, not a tree.** Its macro-haplogroups have no connections above
+  them, because the AADR's nomenclature doesn't encode the deep backbone and no sampled individual
+  bridges them. The reference mode shows what the literature supplies instead.
+- **Pleiades lights up the Mediterranean and nothing else.** That is where classicists worked.
+
+## Formats
+
+Point layers are 15-byte records — `int32` lat and lon at 1e-5°, `int32` years BP, `uint16`
+uncertainty, `uint8` class/flags — base64'd into `.txt` because artifact hosting serves no binary
+media type. Metadata rides in tab-separated sidecars loaded lazily, only when a record is
+inspected or a query is exported. Geography is a 48,000-point Fibonacci-sphere bitmask, 8 KB.

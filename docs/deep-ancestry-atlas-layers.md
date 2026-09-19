@@ -23,7 +23,7 @@ look on their own.
 
 ## 1. Where people were
 
-### Pleiades — *shipped in the prototype*
+### Pleiades — *shipped*
 
 The gazetteer of the classical world. **41,480 place resources** (v4.1, 28 May 2025),
 **CC BY 3.0**, with GIS-ready CSVs in the `data/gis/` directory of the
@@ -55,7 +55,7 @@ Two things about this dataset matter more than the count:
 layer on and Europe, Anatolia and North Africa blaze while everywhere else stays dark. That
 is not where people lived. It is where classicists worked. See §5.
 
-### ROAD — the deep-time counterpart
+### ROAD — the deep-time counterpart *(not yet — see §9)*
 
 **The ROCEEH Out of Africa Database.** 2,300+ localities and 22,000+ assemblages covering
 **3 million to 20,000 years ago** across Africa and Eurasia, integrating archaeology,
@@ -67,7 +67,7 @@ This is the single most important addition for this project, because it covers *
 window the migration story lives in and Pleiades does not.** Pleiades starts when the
 interesting part is nearly over.
 
-### p3k14c — dates as data
+### p3k14c — dates as data *(shipped)*
 
 **180,070 archaeological radiocarbon ages** worldwide, cleaned under one protocol, as a
 single CSV, archived at tDAR. The largest and most geographically complete set of
@@ -81,16 +81,28 @@ sampling is skewed).
 `c14bazAAR` (rOpenSci) harvests and harmonises many regional ¹⁴C databases and is the
 practical ingestion route.
 
+**Shipped:** 175,426 of the 179,689 dates (the remainder lack usable coordinates). Note one
+data-quality trap: strings come out of the `.rda` cp1252-mangled over UTF-8 — *Jędrzychowice*
+arrives as *JÄ™drzychowice*. An `encode('cp1252').decode('utf-8')` round-trip repairs 322 of
+them; a handful are multiply-encoded upstream and are passed through unchanged rather than
+guessed at.
+
 ### World Historical Gazetteer
 
 1.8 million modern place references, ~60,000 temporally scoped records, 600+ published
 datasets, an API, and the **Linked Places** format. Less a layer than a *join key* — the way
 you reconcile your places against everyone else's.
 
-### Itiner-E and Seshat
+### Roads — *shipped* (and Seshat)
 
 **Itiner-E** (Brughmans, de Soto et al., 2024) — digital atlas of ancient roads, segment by
 segment. Turns a scatter of sites into a **network**, which is what migration actually uses.
+
+**Shipped instead: the Ancient World Mapping Center's own linework** (ODbL), which is on GitHub
+and needs no scraping: 3,166 road features plus canals, aqueducts and walls — 3,840 polylines,
+88,031 vertices, derived from the Barrington Atlas. It carries a `Known_or_a` flag separating
+known alignments from approximate ones, which the page renders as dimmed linework. Itiner-E
+remains the richer source when its data is reachable.
 
 **Seshat: Global History Databank** — polities and social complexity from the Neolithic to
 the Industrial Revolution, on Zenodo. Note the licence: **CC BY-NC-SA**. Fine for a public
@@ -254,3 +266,40 @@ is not the same as "it is yours to publish on a globe." See §6 of the main plan
 
 Ship after each. A tool with two well-joined, well-cited layers beats one with eight
 half-integrated ones.
+
+---
+
+## 9. What was actually reachable, and what was not
+
+Building this from a sandboxed environment turned out to be a useful filter, because it is the
+same filter a collaborator with a laptop and no institutional login hits.
+
+**Reachable, and shipped** — every one of these is a plain HTTPS fetch or a `git clone` of a
+public repository, with no key, login or scraping:
+
+| Source | How |
+|---|---|
+| AADR v66 | `git clone` of `poseidon-framework/aadr-archive` — the Reich Lab host and Harvard Dataverse were both blocked, but Poseidon republishes the same releases as `.janno` tables |
+| p3k14c | the R package's own `data/p3k14c_data.rda` on GitHub, parsed with `pyreadr` (tDAR was blocked) |
+| Pleiades | `isawnyu/pleiades.datasets` `data/gis/*.csv` |
+| AWMC roads | `git clone` of `AWMC/geodata` (~640 MB, mostly files the atlas does not use) |
+| Glottolog | `glottolog/glottolog-cldf` `cldf/languages.csv` |
+| D-PLACE | `D-PLACE/dplace-data` `datasets/EA/societies.csv` |
+| AncientMetagenomeDir | `SPAAM-community/AncientMetagenomeDir` sample TSVs |
+| Natural Earth | `nvkelso/natural-earth-vector` |
+
+**Not reachable from here**, and why it matters for anyone planning this work:
+
+- **Zenodo, figshare and OSF** were all blocked, which takes out `pastclim`'s Beyer 2020 and
+  Krapp 2021 rasters, the De Groeve coastlines, and Seshat's Equinox release. The paleo-geography
+  layer — still the highest-impact visual in the plan — needs one of those to come through.
+- **The Neotoma API** was blocked, so palaeoecology is unshipped.
+- **The 28,347-value strontium compilation** is published through *Scientific Data*, and neither
+  the article host nor its repository resolved. Individual-scale mobility, the most novel
+  visualization in this whole plan, remains blocked on getting that one file.
+- **ROAD** needs registration for anything past its public search tools, so the deep-time
+  archaeology layer stays unshipped. This is the most damaging gap: Pleiades starts at roughly
+  1200 BCE, and the migration story is mostly over by then.
+
+The practical lesson: **prefer sources that live in a public git repository.** Every layer that
+shipped did so because someone mirrored it to GitHub; every layer that did not, didn't.
