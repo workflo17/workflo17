@@ -59,6 +59,26 @@ data loaded, so nothing on the page is a number I typed in.
 
 ---
 
+## Deep time, as data
+
+### [Deep Ancestry Atlas](https://github.com/workflo17/deep-ancestry-atlas) · open the globe
+
+An open-source research instrument for human migration: 262,000 georeferenced records from eight
+published datasets on one 3D globe, in one HTML file with hand-rolled WebGL and no dependencies.
+Ancient genomes, 175,000 radiocarbon dates, the Pleiades gazetteer, Roman roads, languages,
+societies and ancient pathogens, all queryable together — pick a lineage and a radius and every
+layer answers at once, exporting CSV with a resolvable citation on every row.
+
+The lineage tree is computed, not typed in: haplogroup nomenclature *is* the topology, so
+prefix-parsing the AADR's own calls across 19,029 dated individuals yields 701 clades. It is
+built to argue with itself. A clade's date is its oldest observed member rather than a TMRCA, its
+position is offered under two estimators that disagree, and when a traced route implies 11,508 km
+per millennium the interface says that is not a rate of travel and explains why. The coverage tab
+exists to make one number unavoidable: 99.3% of ancient genomes are younger than 15,000 BP, so
+the deep-time story rests on under 1% of the evidence.
+
+---
+
 ## Use something
 
 ### [Tend](https://github.com/workflo17/tend) · [see it work](https://tend-demo-workflo17.vercel.app)
