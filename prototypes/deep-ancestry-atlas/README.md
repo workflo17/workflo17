@@ -15,6 +15,7 @@ Layer research: [`docs/deep-ancestry-atlas-layers.md`](../../docs/deep-ancestry-
 cd build && ./fetch-sources.sh          # downloads every upstream source
 pip install pyreadr
 python3 build-tree.py                   # AADR haplogroup calls -> clade trees
+python3 build-haplink.py                # genome -> clade index, for lineage filtering
 python3 build-layers.py                 # everything else -> out/
 cd .. && mkdir -p d && cp build/out/* d/
 python3 -m http.server 8000             # then open localhost:8000
@@ -61,6 +62,36 @@ structure the sampled record cannot reach. It is labelled as not-observed.
   them, because the AADR's nomenclature doesn't encode the deep backbone and no sampled individual
   bridges them. The reference mode shows what the literature supplies instead.
 - **Pleiades lights up the Mediterranean and nothing else.** That is where classicists worked.
+
+## Tracing a lineage
+
+Select a clade and the **Migration path** card lays out its route from the root: every waypoint
+numbered on the globe, with position, leg distance, elapsed time and implied pace, exportable as
+CSV. `fly this path` walks the camera through the waypoints while the clock advances with it.
+
+The card is built to argue with itself, because the honest answer is that a clade's route is not
+observed:
+
+- It reports the path length under **both** position estimators. When they disagree by more than
+  1.6x it says so, because the gap measures how much of the route is coming from the choice of
+  statistic rather than from the data. For Y-DNA N1a1a1a1a the two differ by nearly 6x.
+- It flags legs spanning **zero years** — where parent and child share the same oldest sampled
+  individual, so the leg dates nothing.
+- It refuses an implausible pace. Q1b1a1a on the oldest-sample estimator implies 11,508 km per
+  millennium, and the card says plainly that this is not a rate of travel: Q's oldest sampled
+  carrier is Anzick-1 in Montana, so the waypoints are not in ancestral order. A parent clade's
+  oldest carrier can sit deep inside a descendant population.
+
+## Filters
+
+- **Only carriers of the selected clade** — matches each individual's own haplogroup call against
+  the clade tree, so the evidence layer collapses to exactly the people carrying that lineage
+  (R1b1a1b1a1a2: 19,029 genomes to 725). Usable calls exist for 51.8% of individuals at Y and
+  77.1% at mtDNA.
+- **Date range** — a hard filter in years BP; the scrubber then animates inside it.
+- **Genome quality** — the AADR's own assessment grades (Pass / provisional / questionable / critical).
+- **Per-layer class filters** and a **clade search** that reaches below the detail cut and pulls
+  the full tree in when it needs to.
 
 ## Formats
 
