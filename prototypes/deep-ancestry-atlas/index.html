@@ -1,0 +1,835 @@
+<title>Deep Ancestry Atlas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root{
+    --void:#080B14; --deep:#0C1120; --panel:#10162A; --line:#1E2740;
+    --ink:#E9ECF6; --ink2:#A7B0C8; --ink3:#6C7793;
+    --g-ab:#896c05; --g-e:#45a903; --g-cd:#0b9dcb; --g-i:#817afe;
+    --g-gj:#b4065f; --g-no:#a102b9; --g-q:#fe0191; --g-r:#0c49fe;
+    --stem:#5A6480;
+    --serif:"Instrument Serif",Georgia,"Times New Roman",serif;
+    --sans:"IBM Plex Sans",system-ui,-apple-system,Segoe UI,sans-serif;
+    --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  }
+  html,body{height:100%}
+  body{margin:0;background:var(--void);color:var(--ink);font-family:var(--sans);
+       overflow:hidden;-webkit-font-smoothing:antialiased}
+  #stage{position:fixed;inset:0;display:block;touch-action:none;cursor:grab;background:var(--void)}
+  #stage.drag{cursor:grabbing}
+  #labels{position:fixed;inset:0;pointer-events:none;overflow:hidden}
+  .lbl{position:absolute;transform:translate(-50%,-50%);font-family:var(--mono);
+       font-size:10.5px;letter-spacing:.03em;white-space:nowrap;
+       text-shadow:0 0 6px var(--void),0 0 3px var(--void),0 1px 2px var(--void);
+       pointer-events:none;will-change:transform}
+  .lbl b{font-weight:500}
+  .lbl i{font-style:normal;color:var(--ink3);font-size:9.5px}
+
+  /* ---------- chrome ---------- */
+  .shell{position:fixed;inset:0;pointer-events:none;display:flex;flex-direction:column;
+         padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+  header{pointer-events:none;padding:14px 16px 0;display:flex;gap:14px;align-items:baseline;flex-wrap:wrap}
+  h1{font-family:var(--serif);font-weight:400;font-size:26px;margin:0;letter-spacing:.01em;line-height:1}
+  .sub{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3)}
+
+  .rail{position:absolute;top:0;right:0;bottom:0;width:318px;max-width:86vw;pointer-events:auto;
+        display:flex;flex-direction:column;gap:0;background:linear-gradient(180deg,#0C1120F2,#080B14F7);
+        border-left:1px solid var(--line);backdrop-filter:blur(14px);
+        padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+        transform:translateX(0);transition:transform .32s cubic-bezier(.4,.05,.2,1);overflow:hidden}
+  .rail.hide{transform:translateX(100%)}
+  .railscroll{overflow-y:auto;overscroll-behavior:contain;padding:16px;display:flex;flex-direction:column;gap:18px;flex:1}
+  .sect{display:flex;flex-direction:column;gap:9px}
+  .sect>h2{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;
+           color:var(--ink3);margin:0;font-weight:500}
+
+  .seg{display:flex;border:1px solid var(--line);border-radius:3px;overflow:hidden}
+  .seg button{flex:1;background:transparent;border:0;color:var(--ink2);font-family:var(--mono);
+              font-size:11px;padding:8px 4px;cursor:pointer;letter-spacing:.04em;transition:background .15s,color .15s}
+  .seg button+button{border-left:1px solid var(--line)}
+  .seg button[aria-pressed=true]{background:#1A2240;color:var(--ink)}
+  .seg button:focus-visible{outline:2px solid #6E8CFF;outline-offset:-2px}
+
+  .legend{display:flex;flex-direction:column;gap:1px}
+  .lg{display:flex;gap:9px;align-items:flex-start;background:transparent;border:0;padding:6px 7px;
+      border-radius:3px;cursor:pointer;text-align:left;width:100%;transition:background .13s}
+  .lg:hover{background:#FFFFFF0A}
+  .lg:focus-visible{outline:2px solid #6E8CFF;outline-offset:-2px}
+  .lg .sw{width:9px;height:9px;border-radius:2px;flex:0 0 auto;margin-top:3.5px;box-shadow:0 0 7px currentColor}
+  .lg .nm{font-size:12px;line-height:1.35;color:var(--ink)}
+  .lg .ct{font-family:var(--mono);font-size:9.5px;color:var(--ink3);margin-left:auto;padding-left:6px;margin-top:2px;
+          font-variant-numeric:tabular-nums}
+  .lg[data-off=true]{opacity:.32}
+  .lg[data-off=true] .sw{box-shadow:none}
+
+  /* dossier */
+  .dossier{border:1px solid var(--line);border-radius:4px;background:#0A0F1E;overflow:hidden}
+  .dh{padding:11px 12px 9px;border-bottom:1px solid var(--line);display:flex;gap:9px;align-items:baseline}
+  .dh .code{font-family:var(--serif);font-size:23px;line-height:1}
+  .dh .tsfx{font-size:12px;color:var(--ink3);letter-spacing:.01em}
+  .dh .age{font-family:var(--mono);font-size:10px;color:var(--ink3);margin-left:auto;
+           font-variant-numeric:tabular-nums;white-space:nowrap}
+  .db{padding:11px 12px;display:flex;flex-direction:column;gap:9px}
+  .db p{margin:0;font-size:12.5px;line-height:1.5;color:var(--ink2)}
+  .kv{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;font-size:11px}
+  .kv dt{font-family:var(--mono);font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink3);
+         align-self:center}
+  .kv dd{margin:0;color:var(--ink);font-variant-numeric:tabular-nums}
+  .chain{display:flex;flex-wrap:wrap;gap:3px;align-items:center}
+  .chain span{font-family:var(--mono);font-size:10px;color:var(--ink2);background:#151C33;
+              padding:2px 5px;border-radius:2px;cursor:pointer}
+  .chain span:hover{background:#1E2740;color:var(--ink)}
+  .chain i{font-style:normal;color:var(--ink3);font-size:9px}
+
+  .note{font-size:11px;line-height:1.5;color:var(--ink3);border-left:2px solid var(--line);padding-left:9px}
+  .note b{color:var(--ink2);font-weight:500}
+
+  /* ---------- transport ---------- */
+  .transport{pointer-events:auto;margin-top:auto;padding:12px 16px 14px;
+             background:linear-gradient(180deg,#080B1400,#080B14E8 34%);
+             display:flex;flex-direction:column;gap:7px}
+  .treadout{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .bigyear{font-family:var(--serif);font-size:38px;line-height:.92;letter-spacing:-.01em;
+           font-variant-numeric:tabular-nums}
+  .bigyear em{font-style:normal;font-size:15px;color:var(--ink3);font-family:var(--mono);letter-spacing:.06em}
+  .epoch{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3)}
+  .scrubwrap{position:relative;height:30px;display:flex;align-items:center}
+  .ticks{position:absolute;inset:0 0 10px;pointer-events:none}
+  .ticks i{position:absolute;bottom:0;width:1px;height:5px;background:var(--line)}
+  .ticks i b{position:absolute;bottom:7px;left:0;transform:translateX(-50%);font-family:var(--mono);
+             font-size:8.5px;color:var(--ink3);font-weight:400;white-space:nowrap}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:20px;background:transparent;
+                    margin:0;cursor:pointer;position:relative;z-index:2}
+  input[type=range]::-webkit-slider-runnable-track{height:2px;background:var(--line);border-radius:2px}
+  input[type=range]::-moz-range-track{height:2px;background:var(--line);border-radius:2px}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;border-radius:50%;
+      background:var(--ink);margin-top:-5.5px;box-shadow:0 0 11px #9FB4FF,0 0 3px #000}
+  input[type=range]::-moz-range-thumb{width:13px;height:13px;border:0;border-radius:50%;background:var(--ink);
+      box-shadow:0 0 11px #9FB4FF}
+  input[type=range]:focus-visible{outline:2px solid #6E8CFF;outline-offset:3px;border-radius:3px}
+  .tbtns{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+  .btn{background:#131A30;border:1px solid var(--line);color:var(--ink);font-family:var(--mono);font-size:11px;
+       padding:6px 11px;border-radius:3px;cursor:pointer;letter-spacing:.04em;transition:background .14s,border-color .14s}
+  .btn:hover{background:#1B2440;border-color:#2C3858}
+  .btn:focus-visible{outline:2px solid #6E8CFF;outline-offset:1px}
+  .btn[aria-pressed=true]{background:#24305A;border-color:#3C4C7E}
+  .btn.play{min-width:74px}
+  .spd{margin-left:auto;display:flex;gap:4px;align-items:center}
+  .spd label{font-family:var(--mono);font-size:9.5px;color:var(--ink3);letter-spacing:.1em;text-transform:uppercase}
+
+  .toggle{position:absolute;top:calc(14px + env(safe-area-inset-top,0px));right:14px;z-index:6;pointer-events:auto}
+  body.railopen .toggle{right:332px}
+  body.railopen .transport{padding-right:334px}
+
+  .hint{position:absolute;left:16px;bottom:calc(112px + env(safe-area-inset-bottom,0px));
+        font-family:var(--mono);font-size:10px;color:var(--ink3);letter-spacing:.05em;pointer-events:none;
+        transition:opacity .7s;line-height:1.7}
+  .hint.gone{opacity:0}
+
+  @media (max-width:820px){
+    .rail{width:min(318px,86vw)}
+    body.railopen .toggle{right:14px}
+    body.railopen .transport{padding-right:16px}
+    h1{font-size:21px} .bigyear{font-size:31px}
+    .hint{display:none}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .rail{transition:none}
+  }
+</style>
+
+<canvas id="stage"></canvas>
+<div id="labels" aria-hidden="true"></div>
+
+<div class="shell">
+  <header>
+    <h1>Deep Ancestry Atlas</h1>
+    <span class="sub" id="hdrmode">Y-chromosome lineages</span>
+  </header>
+
+  <button class="btn toggle" id="railtoggle" aria-pressed="true">panel</button>
+
+  <p class="hint" id="hint">drag to orbit · scroll to zoom<br>click any lineage to trace it</p>
+
+  <div class="transport">
+    <div class="treadout">
+      <div class="bigyear" id="year">present <em>day</em></div>
+      <div class="epoch" id="epoch"></div>
+    </div>
+    <div class="scrubwrap">
+      <div class="ticks" id="ticks"></div>
+      <input type="range" id="scrub" min="0" max="1000" value="1000" step="1"
+             aria-label="Time, years before present">
+    </div>
+    <div class="tbtns">
+      <button class="btn play" id="play" aria-pressed="false">▶ play</button>
+      <button class="btn" id="rewind">↺ reset</button>
+      <div class="spd">
+        <label for="speed">rate</label>
+        <select class="btn" id="speed" style="padding:5px 6px">
+          <option value="0.35">¼×</option>
+          <option value="0.7">½×</option>
+          <option value="1.4" selected>1×</option>
+          <option value="3">2×</option>
+          <option value="6">4×</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<aside class="rail" id="rail" aria-label="Lineage controls">
+  <div class="railscroll">
+    <div class="sect">
+      <h2>Marker system</h2>
+      <div class="seg" role="group" aria-label="Marker system">
+        <button id="mY" aria-pressed="true">Y-DNA · paternal</button>
+        <button id="mM" aria-pressed="false">mtDNA · maternal</button>
+      </div>
+    </div>
+
+    <div class="sect">
+      <h2>Lineage groups</h2>
+      <div class="legend" id="legend"></div>
+    </div>
+
+    <div class="sect">
+      <h2>Dossier</h2>
+      <div class="dossier" id="dossier"></div>
+    </div>
+
+    <div class="sect">
+      <h2>What you are looking at</h2>
+      <p class="note" id="prov"></p>
+    </div>
+  </div>
+</aside>
+
+<script>
+"use strict";
+/* =====================================================================
+   DATA — illustrative scaffold, not a research dataset.
+   Node coordinates are approximate centroids of the region where a clade
+   is generally held to have arisen or expanded; ages are rounded to the
+   middle of commonly published TMRCA ranges. Real deployment replaces
+   this table with the AADR .anno file + a dated haplogroup tree.
+   ===================================================================== */
+
+const GROUPS = {
+  Y: [
+    {k:"AB", c:"#896c05", n:"A · B — deepest African lineages"},
+    {k:"E",  c:"#45a903", n:"E — African expansion & return"},
+    {k:"CD", c:"#0b9dcb", n:"C · D · H — early Asian coastal"},
+    {k:"I",  c:"#817afe", n:"I — European hunter-gatherers"},
+    {k:"GJ", c:"#b4065f", n:"G · J — Near East & first farmers"},
+    {k:"NO", c:"#a102b9", n:"N · O — East Asian expansion"},
+    {k:"Q",  c:"#fe0191", n:"Q — Beringia & the Americas"},
+    {k:"R",  c:"#0c49fe", n:"R — steppe & Indo-European"}
+  ],
+  M: [
+    {k:"L01",c:"#896c05", n:"L0 · L1 — deepest African"},
+    {k:"L23",c:"#45a903", n:"L2 · L3 — expansion & the exit"},
+    {k:"M",  c:"#0b9dcb", n:"M — southern coastal route"},
+    {k:"N",  c:"#817afe", n:"N — northern route & Sahul"},
+    {k:"R",  c:"#b4065f", n:"R — western Eurasian stem"},
+    {k:"U",  c:"#a102b9", n:"U — European hunter-gatherers"},
+    {k:"HV", c:"#fe0191", n:"HV · H · JT — Neolithic Europe"},
+    {k:"EA", c:"#0c49fe", n:"B · F · D · A — East Asia & Americas"}
+  ]
+};
+const STEM = "#5A6480";
+
+/* id, parent, group(null=stem), ageBP, lat, lon, title, blurb */
+const TREE = {
+Y: [
+["A00-T",null,null,275000,5.5,12.5,"Y-chromosomal Adam","Not the first man — the one whose Y chromosome is the only one with unbroken father-to-son descent to every living man. Everyone else's line died out."],
+["A00","A00-T","AB",250000,6.4,11.0,"A00","The deepest branch known, found in a handful of Mbo families in Cameroon. It splits off before the rest of humanity's paternal tree even begins."],
+["A0-T","A00-T",null,235000,7.0,15.0,"A0-T","The stem carrying everyone who is not A00."],
+["A0","A0-T","AB",200000,2.5,12.0,"A0","Rare today, concentrated in western Central Africa."],
+["A1","A0-T",null,210000,8.0,25.0,"A1","A trunk node — no living population is 'A1', it is simply where two branches part."],
+["A1a","A1","AB",175000,14.0,-14.0,"A1a","Carried today in Senegal, Guinea-Bissau and Mali."],
+["A1b","A1",null,180000,10.0,30.0,"A1b","The stem leading to almost every man alive."],
+["A1b1","A1b","AB",140000,-6.0,22.0,"A1b1","Associated with Khoisan-speaking populations of southern Africa."],
+["BT","A1b",null,130000,6.0,34.0,"BT","East Africa. From here the tree becomes the story of everyone."],
+["B","BT","AB",100000,2.0,25.0,"B","Common among Central African rainforest hunter-gatherer groups and parts of the Sahel."],
+["CT","BT",null,88000,10.0,38.0,"CT","Every man outside Africa, and most inside it, descends from this node. The out-of-Africa bottleneck sits just after it."],
+["DE","CT",null,76000,14.0,40.0,"DE","A node that immediately splits into an African branch and an Asian one — the clearest single fork in the exit story."],
+["E","DE","E",70000,11.0,41.0,"E","Now the majority lineage across Africa. Whether E arose in Africa or arose in the Near East and came back is genuinely unsettled."],
+["E1b1a","E","E",35000,10.0,0.0,"E1b1a","West Africa. The lineage that would later ride the Bantu expansion across a continent."],
+["E-Bantu","E1b1a","E",4000,-6.0,23.0,"E1b1a (Bantu expansion)","In roughly two thousand years, farming communities carried this lineage from West Africa to the southern tip of the continent — the fastest large-scale expansion in African prehistory."],
+["E1b1b","E","E",24000,20.0,32.0,"E1b1b","Northeast Africa, later spreading along both shores of the Mediterranean."],
+["E-Med","E1b1b","E",8000,34.0,9.0,"E1b1b (Mediterranean)","North Africa and the Mediterranean rim; carried into Europe repeatedly."],
+["D","DE","CD",73000,27.0,74.0,"D","An Asian lineage with a strange, broken distribution — Tibet, Japan and the Andaman Islands, and almost nowhere between."],
+["D-And","D","CD",30000,12.0,93.0,"D (Andamanese)","Isolated on the Andaman Islands for tens of thousands of years."],
+["D-Tib","D","CD",20000,30.0,90.0,"D1a (Tibet)","One of the two dominant paternal lineages on the Tibetan plateau."],
+["D-Jpn","D","CD",19000,36.0,138.0,"D1b (Japan)","The Jōmon lineage — carried by Japan's pre-agricultural population and still around a third of Japanese men today."],
+["CF","CT",null,76000,16.0,44.0,"CF","The branch that leaves Africa and becomes nearly everyone in Eurasia, Oceania and the Americas."],
+["C","CF","CD",53000,24.0,72.0,"C","An early traveller. C turns up at the far ends of the human range — Australia, Mongolia, and among the first Americans."],
+["C-Aus","C","CD",48000,-23.0,133.0,"C1b2 (Sahul)","Among the first Australians. They crossed open water to get there, at least 65,000 years ago by the archaeology."],
+["C-NEA","C","CD",34000,50.0,112.0,"C2 (Northeast Asia)","Siberia and Mongolia."],
+["C-Mong","C-NEA","CD",3000,46.0,105.0,"C2 (steppe)","The dominant paternal lineage of the eastern steppe, later spread hard by Mongol expansion."],
+["F","CF",null,69000,28.0,62.0,"F","More than nine in ten men outside Africa descend from F. A single node, a single window of time."],
+["GHIJK","F",null,48500,30.0,58.0,"GHIJK","The fan-out. Within a few thousand years this node produces most of the lineages of Eurasia."],
+["G","GHIJK","GJ",48000,40.0,45.0,"G","The Caucasus and eastern Anatolia."],
+["G2a","G","GJ",15000,39.0,33.0,"G2a","Anatolia, on the eve of farming."],
+["G-Neo","G2a","GJ",7500,45.0,12.0,"G2a (Neolithic Europe)","The signature lineage of Europe's first farmers. Ötzi the Iceman carried it. It is rare in Europe now — later migrations largely replaced it."],
+["HIJK","GHIJK",null,48000,28.0,65.0,"HIJK","Stem."],
+["H","HIJK","CD",45000,22.0,76.0,"H","South Asia, deeply rooted and still common there."],
+["H1","H","CD",25000,20.0,78.0,"H1","Widespread across the Indian subcontinent."],
+["IJK","HIJK",null,47000,33.0,45.0,"IJK","Stem."],
+["IJ","IJK",null,43000,36.0,40.0,"IJ","The Near Eastern fork: one branch becomes European, the other stays and becomes Levantine and Arabian."],
+["I","IJ","I",27500,45.0,18.0,"I","Europe's own deep lineage — the paternal line of the continent's Ice Age hunter-gatherers."],
+["I2","I","I",22000,45.0,20.0,"I2","Present in European foragers before farming arrived."],
+["I2a","I2","I",11000,44.0,19.0,"I2a","Survives best in the Balkans and the Dinaric Alps."],
+["I1","I","I",4600,60.0,14.0,"I1","Scandinavia. A young, explosive expansion from a very small founding group."],
+["J","IJ","GJ",42000,34.0,44.0,"J","The Fertile Crescent lineage."],
+["J1","J","GJ",18000,28.0,44.0,"J1","The Levant and Arabia."],
+["J1-Ar","J1","GJ",5000,23.0,45.0,"J1 (Arabia)","Dominant across the Arabian peninsula today."],
+["J2","J","GJ",27000,37.0,45.0,"J2","The Zagros and Anatolia — herders and, later, the farming societies of the northern Fertile Crescent."],
+["J2-Med","J2","GJ",6000,38.0,25.0,"J2 (Mediterranean)","Carried west along the Mediterranean with farming and, much later, with Greek and Phoenician settlement."],
+["K","IJK",null,47000,25.0,72.0,"K","Stem — and the ancestor of most of Asia, Oceania and the Americas."],
+["LT","K","CD",43000,30.0,65.0,"L · T","A quiet branch: South Asia, the Iranian plateau, and pockets around the Mediterranean."],
+["L","LT","CD",25000,25.0,68.0,"L","Pakistan and western India."],
+["K2","K",null,45400,22.0,95.0,"K2","Southeast Asia. The last common ancestor of East Asians, Papuans, Siberians and Native Americans."],
+["NO","K2",null,41000,30.0,105.0,"NO","The East Asian stem."],
+["N","NO","NO",36800,42.0,112.0,"N","Turns north and west, and ends up ringing the Arctic."],
+["N1c","N","NO",14000,60.0,92.0,"N1c (Siberia)","A sweep across the Siberian taiga, west along the forest belt."],
+["N-Fin","N1c","NO",3500,62.0,26.0,"N1c (Finland & Baltic)","More than half of Finnish men carry a lineage whose recent ancestors lived in Siberia."],
+["O","NO","NO",36800,26.0,108.0,"O","The dominant paternal lineage of East and Southeast Asia — carried by roughly a fifth of all men alive."],
+["O2","O","NO",30000,32.0,112.0,"O2","North China."],
+["O-Han","O2","NO",5000,34.0,113.0,"O2 (millet farmers)","Rice and millet farming turned three founding lineages into hundreds of millions of descendants."],
+["O1","O","NO",28000,24.0,116.0,"O1","South China coast."],
+["O-Tai","O1","NO",5000,23.5,121.0,"O1 (Taiwan)","The launch point of the Austronesian expansion."],
+["O-Pac","O-Tai","NO",1000,-17.6,-149.4,"O1 (Remote Oceania)","From Taiwan to Polynesia: the longest open-ocean colonisation in prehistory, ending in Hawai'i, Rapa Nui and Aotearoa."],
+["K2b","K2",null,45000,15.0,105.0,"K2b","Stem."],
+["MS","K2b","CD",40000,-6.0,145.0,"M · S (Papua)","New Guinea and Island Melanesia, isolated for tens of thousands of years."],
+["P","K2b",null,41000,35.0,90.0,"P","Central Asia. From here, two of the great expansions."],
+["Q","P","Q",31000,55.0,88.0,"Q","South Siberia."],
+["Q-Ber","Q","Q",15500,64.0,-165.0,"Q-M3 (Beringia)","A small population sat isolated on the Bering land bridge for thousands of years — long enough to accumulate its own mutations — before the ice opened."],
+["Q-NA","Q-Ber","Q",13000,45.0,-105.0,"Q-M3 (North America)","Once the route opened, the continent filled fast."],
+["Q-SA","Q-NA","Q",11500,-15.0,-70.0,"Q-M3 (South America)","From Alaska to Patagonia in perhaps 1,500 years — the fastest continental colonisation in the human record."],
+["R","P","R",28000,48.0,70.0,"R","Central Asia. Rare for twenty thousand years, then suddenly everywhere."],
+["R1a","R","R",22000,50.0,62.0,"R1a","The eastern steppe branch."],
+["R1a-M417","R1a","R",5800,50.0,42.0,"R1a-M417","The Pontic-Caspian steppe, at the moment horses and wheels change what distance means."],
+["R1a-EE","R1a-M417","R",4600,53.0,30.0,"R1a (Corded Ware)","North and east across Europe."],
+["R1a-SA","R1a-M417","R",3800,28.0,75.0,"R1a (South Asia)","The same steppe lineage turns up in northern India — one of the most contested findings in the field."],
+["R1b","R","R",22000,46.0,55.0,"R1b","The western steppe branch."],
+["R1b-M269","R1b","R",6400,45.0,45.0,"R1b-M269","The Yamnaya world: mobile pastoralists on the Pontic-Caspian grassland."],
+["R1b-BB","R1b-M269","R",4500,50.0,4.0,"R1b (Bell Beaker)","Within a few centuries this lineage replaces most of the existing paternal ancestry of Britain. The pots travelled; so, it turns out, did the people."],
+["R1b-Ib","R1b-BB","R",4200,41.0,-4.0,"R1b (Atlantic façade)","Now the most common paternal lineage in western Europe — over 80% of men in Ireland and the Basque country."]
+],
+M: [
+["L",null,null,180000,2.0,36.0,"Mitochondrial Eve","The woman whose mitochondrial DNA descends unbroken, mother to daughter, to every living human. She was not alone, and she was not the first — she is simply the one whose line never broke."],
+["L0","L","L01",150000,-24.0,22.0,"L0","The first split in the maternal tree. L0 goes one way, everyone else the other."],
+["L0d","L0","L01",60000,-30.0,22.0,"L0d","Khoisan-speaking southern Africa. Some of the deepest maternal ancestry alive."],
+["L1","L","L01",150000,3.0,20.0,"L1","Central African rainforest."],
+["L1c","L1","L01",80000,0.0,17.0,"L1c","Carried by Central African hunter-gatherer communities."],
+["L5","L","L01",110000,2.0,32.0,"L5","Rare, East African, very old."],
+["L2","L","L23",90000,8.0,3.0,"L2","West and Central Africa — and later, through the Atlantic slave trade, one of the most common maternal lineages in the Americas."],
+["L2a","L2","L23",5000,-5.0,25.0,"L2a (Bantu expansion)","Travelled with farming communities across Central and southern Africa."],
+["L3","L","L23",70000,9.0,39.0,"L3","East Africa. Every maternal line outside Africa — all of them — descends from L3. The exit was narrow."],
+["M","L3","M",50000,20.0,70.0,"M","The southern coastal route: around Arabia, along the Indian Ocean rim, and onward east."],
+["M1","M","M",30000,14.0,40.0,"M1","A back-migration — this branch returns to Africa."],
+["M7","M","M",35000,28.0,112.0,"M7","East Asia."],
+["Q-mt","M","M",45000,-6.0,143.0,"Q","New Guinea. Arrived early, stayed put."],
+["D4","M","EA",30000,48.0,115.0,"D4","Northeast Asia and the Siberian steppe."],
+["D1","D4","EA",16000,62.0,-160.0,"D1 (Beringia)","One of the five founding maternal lineages of the Americas."],
+["D1-SA","D1","EA",12000,-12.0,-75.0,"D1 (South America)","Down the Pacific coast and into the Andes."],
+["N","L3","N",50000,22.0,50.0,"N","The other exit branch — north and west out of Arabia."],
+["N-Aus","N","N",45000,-25.0,133.0,"S · O (Australia)","Australia's founding maternal lineages, isolated for over forty thousand years."],
+["X","N","N",30000,38.0,42.0,"X","Near East and Europe — and, puzzlingly, a small presence in northeastern North America."],
+["A","N","EA",30000,52.0,120.0,"A","Northeast Asia."],
+["A2","A","EA",15500,60.0,-150.0,"A2 (Beringia)","Another of the American founding lineages."],
+["A2-MA","A2","EA",12000,20.0,-100.0,"A2 (Mesoamerica)","Still the most common maternal lineage across much of Mexico and Central America."],
+["R","L3","R",50000,25.0,60.0,"R","The branch that becomes most of western Eurasia."],
+["B","R","EA",40000,25.0,110.0,"B","East Asia."],
+["B4","B","EA",6000,23.0,121.0,"B4 (Austronesian)","The maternal signature of the Pacific expansion, traceable from Taiwan to Polynesia."],
+["B4-Pac","B4","EA",1000,-17.6,-149.4,"B4 (Polynesia)","Carried across a third of the planet's surface in outrigger canoes."],
+["B2","B","EA",13000,-12.0,-75.0,"B2 (South America)","An American founding lineage, strongest along the Pacific coast."],
+["F","R","EA",35000,18.0,102.0,"F","Mainland Southeast Asia."],
+["U","R","U",47000,33.0,45.0,"U","One of the oldest western Eurasian maternal branches."],
+["U5","U","U",30000,48.0,15.0,"U5","The lineage of Europe's Ice Age hunter-gatherers — the people who painted Lascaux."],
+["U5-EU","U5","U",12000,55.0,20.0,"U5 (post-glacial)","Follows the retreating ice north. Still around 10% of Europeans, a direct maternal thread to the foragers."],
+["U6","U","U",30000,32.0,2.0,"U6","North Africa."],
+["K","U","U",25000,42.0,25.0,"K","A younger branch of U."],
+["K-Neo","K","U",8000,46.0,14.0,"K (first farmers)","Carried into Europe by Anatolian farming communities."],
+["HV","R","HV",27000,34.0,44.0,"HV","The Near East, before farming."],
+["H","HV","HV",20000,38.0,40.0,"H","Would become the most common maternal lineage in Europe — around 40% of Europeans today."],
+["H-EU","H","HV",12000,46.0,10.0,"H (Europe)","Spreads with the post-glacial recolonisation and again with farming."],
+["JT","R","HV",28000,36.0,42.0,"JT","Near East."],
+["J","JT","HV",20000,35.0,40.0,"J","Strongly associated with the spread of agriculture into Europe."],
+["T","JT","HV",20000,37.0,38.0,"T","Anatolia and the Fertile Crescent."]
+]
+};
+
+const EPOCHS = [
+  [300000,"Middle Pleistocene"],[130000,"Last interglacial"],[115000,"Last glacial period"],
+  [71000,"Toba · MIS 4"],[57000,"Mid last-glacial"],[29000,"Last Glacial Maximum approaching"],
+  [19000,"Last Glacial Maximum"],[14700,"Bølling–Allerød warming"],[12900,"Younger Dryas"],
+  [11700,"Holocene"],[10000,"Neolithic begins"],[5500,"Bronze Age begins"],
+  [3200,"Iron Age"],[2000,"Classical antiquity"],[1000,"Medieval"],[500,"Early modern"],[0,"Present"]
+];
+</script>
+<script>
+"use strict";
+/* ===================== tiny math ===================== */
+const V=(x,y,z)=>({x,y,z});
+function m4mul(a,b){const o=new Float32Array(16);
+ for(let i=0;i<4;i++)for(let j=0;j<4;j++){let s=0;for(let k=0;k<4;k++)s+=a[k*4+j]*b[i*4+k];o[i*4+j]=s;}return o;}
+function m4persp(fov,asp,n,f){const t=1/Math.tan(fov/2),o=new Float32Array(16);
+ o[0]=t/asp;o[5]=t;o[10]=(f+n)/(n-f);o[11]=-1;o[14]=2*f*n/(n-f);return o;}
+function m4look(e,c,u){
+ const z=norm(sub(e,c)), x=norm(cross(u,z)), y=cross(z,x);
+ return new Float32Array([x.x,y.x,z.x,0, x.y,y.y,z.y,0, x.z,y.z,z.z,0,
+   -(x.x*e.x+x.y*e.y+x.z*e.z), -(y.x*e.x+y.y*e.y+y.z*e.z), -(z.x*e.x+z.y*e.y+z.z*e.z), 1]);}
+const sub=(a,b)=>V(a.x-b.x,a.y-b.y,a.z-b.z);
+const cross=(a,b)=>V(a.y*b.z-a.z*b.y,a.z*b.x-a.x*b.z,a.x*b.y-a.y*b.x);
+const dot3=(a,b)=>a.x*b.x+a.y*b.y+a.z*b.z;
+const norm=a=>{const l=Math.hypot(a.x,a.y,a.z)||1;return V(a.x/l,a.y/l,a.z/l);};
+const ll2v=(lat,lon)=>{const p=lat*Math.PI/180,t=lon*Math.PI/180;
+ return V(Math.cos(p)*Math.sin(t),Math.sin(p),Math.cos(p)*Math.cos(t));};
+function slerp(a,b,s){let d=Math.max(-1,Math.min(1,dot3(a,b))),o=Math.acos(d);
+ if(o<1e-6)return V(a.x+(b.x-a.x)*s,a.y+(b.y-a.y)*s,a.z+(b.z-a.z)*s);
+ const s0=Math.sin((1-s)*o)/Math.sin(o),s1=Math.sin(s*o)/Math.sin(o);
+ return V(a.x*s0+b.x*s1,a.y*s0+b.y*s1,a.z*s0+b.z*s1);}
+const hex2rgb=h=>[parseInt(h.slice(1,3),16)/255,parseInt(h.slice(3,5),16)/255,parseInt(h.slice(5,7),16)/255];
+
+/* ===================== GL boot ===================== */
+const cv=document.getElementById("stage");
+const gl=cv.getContext("webgl2",{antialias:true,alpha:false})||cv.getContext("webgl",{antialias:true,alpha:false});
+if(!gl){document.getElementById("hint").textContent="WebGL unavailable in this browser.";}
+function sh(t,src){const s=gl.createShader(t);gl.shaderSource(s,src);gl.compileShader(s);
+ if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))console.error(gl.getShaderInfoLog(s),src);return s;}
+function prog(v,f){const p=gl.createProgram();gl.attachShader(p,sh(gl.VERTEX_SHADER,v));
+ gl.attachShader(p,sh(gl.FRAGMENT_SHADER,f));gl.linkProgram(p);
+ if(!gl.getProgramParameter(p,gl.LINK_STATUS))console.error(gl.getProgramInfoLog(p));
+ p.u=n=>gl.getUniformLocation(p,n); p.a=n=>gl.getAttribLocation(p,n); return p;}
+function buf(data,type){const b=gl.createBuffer();const t=type||gl.ARRAY_BUFFER;
+ gl.bindBuffer(t,b);gl.bufferData(t,data,gl.STATIC_DRAW);return b;}
+
+/* ===================== globe body ===================== */
+const SPH=(()=>{const LA=72,LO=144,pos=[],idx=[];
+ for(let i=0;i<=LA;i++){const p=(i/LA-0.5)*Math.PI;
+  for(let j=0;j<=LO;j++){const t=j/LO*2*Math.PI;
+   pos.push(Math.cos(p)*Math.sin(t),Math.sin(p),Math.cos(p)*Math.cos(t));}}
+ for(let i=0;i<LA;i++)for(let j=0;j<LO;j++){const a=i*(LO+1)+j,b=a+LO+1;
+  idx.push(a,b,a+1, b,b+1,a+1);}
+ return {p:new Float32Array(pos),i:new Uint16Array(idx),n:idx.length};})();
+const sphP=buf(SPH.p), sphI=buf(SPH.i,gl.ELEMENT_ARRAY_BUFFER);
+
+const pGlobe=prog(
+`attribute vec3 aP;uniform mat4 uMVP;uniform vec3 uCam;varying float vF;varying vec3 vN;
+ void main(){vN=aP;vec3 vd=normalize(uCam-aP);vF=1.0-max(dot(normalize(aP),vd),0.0);
+ gl_Position=uMVP*vec4(aP,1.0);}`,
+`precision mediump float;varying float vF;varying vec3 vN;uniform vec3 uSun;
+ void main(){float lam=max(dot(normalize(vN),normalize(uSun)),0.0);
+ vec3 base=mix(vec3(0.031,0.043,0.078),vec3(0.055,0.075,0.125),lam);
+ float rim=pow(vF,3.2);
+ vec3 col=base+vec3(0.10,0.22,0.48)*rim*0.85;
+ gl_FragColor=vec4(col,1.0);}`);
+
+/* ===================== stars ===================== */
+const STARN=1400, sp=new Float32Array(STARN*3), sb=new Float32Array(STARN);
+(()=>{let s=20240919;const R=()=>(s=(s*1103515245+12345)&0x7fffffff)/0x7fffffff;
+ for(let i=0;i<STARN;i++){const u=R()*2-1,th=R()*2*Math.PI,r=Math.sqrt(1-u*u);
+  sp[i*3]=r*Math.cos(th)*38;sp[i*3+1]=u*38;sp[i*3+2]=r*Math.sin(th)*38;
+  sb[i]=0.16+Math.pow(R(),2.6)*0.84;}})();
+const starP=buf(sp), starB=buf(sb);
+const pStar=prog(
+`attribute vec3 aP;attribute float aB;uniform mat4 uMVP;uniform float uPX;varying float vB;
+ void main(){vB=aB;gl_Position=uMVP*vec4(aP,1.0);gl_PointSize=(0.7+aB*1.7)*uPX;}`,
+`precision mediump float;varying float vB;
+ void main(){vec2 d=gl_PointCoord-0.5;float a=max(0.0,1.0-length(d)*2.0);
+ gl_FragColor=vec4(vec3(0.72,0.78,0.95)*vB,a*a*vB*0.95);}`);
+
+/* ===================== land ===================== */
+const LANDMASK="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paTAlJSSglJSKkpKSYEpKSUFp6Rg1JSSglJSKkpKSYEpKSUFpaRQ1JSSAlNSagpKSYEpKSUFpKRU1JSSAlNTSgpKSaGpKSUFpKRU0JSSAlNSSgpISakgKSUFpqSUVJCSAkNSSgpISakgISUFpqSUFJCaQkNCSgpISamhICUFhoSUFJCaQkFSSgpMSSmpIDUFhoSUFJCSQkFASgpMCSmpIDWFhoSUFJiSQkFAagoMCSkpICWFgqCUFBiSUkNAagoNCSkpICWFgoCUVBkSUlJAagoFSSmpICSFgoDUVBgSUlJASgoFAampMCSkhoDUFBqSUlJASAoFAampMCSkpoCUFBoCUlNBSEoFBakpOCSkpoCQVAoCUlNASEgNASkpPASkpoCQFAoCUlNACEhNASEpNASkpoCQlAoCUlNYCEhNASEpFASkpoAQlIoCQlJICEhNASEpFASkpqAQkJoCQlJICEhNASEoFQSEpLAQkBoCQlIoCEhNQSEoBQWEpJAQkJoCQlEoCAhNYSEgJQSEppAQkJoCQlAKCAhNISEgNQSEopAQEJqCQlBKCAhFISEgNQWEohAQEJrCQkBKCAhFISEgNQWEoBQQEIpCQkBKCAhFISEgNIWFoJQQEIpCQkBqCghBISEgFIWFgJQQEIpCQkAKCghBKSAgFIWFgJQQEIpCQkAICgtBKSEgFIWEgBQUEIJCQkAICgkBKSEgFIWEgBAQEIJSQEAoCgkBKSggFIWEgBAQEgJSQEAoCgsBKSggBIWEgBAUEgJSQEEoCgkBISAgBKWAgFAUEgJSUEAICgkBISEsBKSAglAUEgJCQEEICgkFISEkBKSAgFAUEgJCQkEIaAEFISgkBKSEohBUEgpCQkEISAkFoSgkBISEghBQEgpCQFkISElFoagkBISEghCQEgpCQEkICAkFIaAkFISEolCQEoJCUFkICAkFIaAkFISAklAQkgpCQUkoCAkFoSAlFISgshCQEgpCQUkoCAEFISAkFYSAslAQEgpCQUkoCAFloSAkFYSAklAQAopCQEkoCAFloSAlFISCklAQAopCQEgoCAEloSAkFISCklAQAopCQUoqCAEloSAEFISAklAQAspCQUooCAEloSAEFIWAklAQAkpCQQgoCAEloSAEFIWClFQQAkpCQQgoCAEloSAEFISCEFQQAEpCUQgoCAEloSAAlISCElAQAkpCUQAoCAUlqSAAlISiElAQAkpCQQAoCAUlqCAAlKSiAlAQCgpCQQAoSEUlqCAElISCAFAQCgpQQQAoSEUFoCAEFISCAFAQigpQQQAoSEUFoCAQFKCCAFAQigpAQQAoCAUBoCAQFaCCAFCQigpAQQAoAAUBoCAUFaCCAFCQCgpAQSAqAAUBoCAUFYCCAFCACgJAQSAqQAUBoCAUFYCCQFQACgJAQSgqQAUBoAAVFICCQFQACgJAQSgqAAWBqAAVBICCUFSACgJAASgoAAWBqAAVBICCUFSACgJRASooAAWBqAAVBKACUFQAigJRASoIAEWhqAAUBKICUFQACgJRASoKAAWgqAAUBaICVFAACkJRASoIRAWgoAAUBKICVBAACkBRASoIRAWgoAAUBKICVBCACkBRASgIRAWoqAAUgKICVBCICkBBASgIREWooAAUgKICUBCIikBBASgIRQWoqBAVgIICUBCIikBRASgARQWooBAVgYICUBCIilBRASgABQWooBAVgaICUACKClBBISoABUWgIBAVgaICUACKClBBISoABUWggBAVoYJCUAAKilBBISoCRUWggBQVoIJCVAAKilABISoCRUWgiBQUoYJCUACOikARISpCBcWgiBQUoQJCUAQKikABISpCBcWggBQUgQJCUACKikEBKShCBcWgABQVgQJCUISKikEBKShCBYSgABQUgQJCUIQKikEBOSgCBYSgABQUgwJSUIQKiEEBKSoCBYSgABQUgwJSUAQKCEEBKSgGBYSgABQQgwJSUAQKCEEBOCgGBeSgABQQgwJSUAQKCEEBKCgGBaSgCBUQgyJSUAwKCEEBKCAGBaSgCBUQgwJwUAwKSEEBKiAGBaSgCBUQggJQUIwKSEERKiAGBaSgCBUQggJQQIwKSEERKiAEBaCgGBWQgiJwQIwKSEERKCAEBaCAEBWQgiJQQIwKQEERKCBERaCAEBWQoiJQQAgKQEEhKCAFBaCIGBWQoiJQQIgKQAEhKCAFBaCAGBSAgiJQQAoKQAEhKCAFBaCAGBSAokJQQIoKQAExKAAFBaCAEBSAAkJQQAoKwAExKABFBaCAFBSAAkJQAAoKQAExKAAFhaCAFBSAAkJQAAoKQAEhKAAFhKAAFBSAAkJQAAoKQAEpKAAFhKAAFBSBAkJQAAoKQQEpKAAFhKAAFBSAAkJQAAoIQQEoKAAFhKAAFBSAAlJQAAoIQQEoKAIFhKAAFBCCIlBQAAoIQREoKABFpKAAFBCColBQBAoIQQEoKABFoKAAFBCCIlBQBIpIQQEoIARFoKAAFBCCAlBQAIpAQQEoIARFoaAIFJGCAlBQAIpCQQEoIARFoKAIFIGCAlBACIpCQREoIAQFoKAAFIGCAlBECIpAQREoIgUFoKgAFIWCAlBACApAQREoAgUFoIgQHIWCIlBECgpAUREoCgUFoIgQFIGCIlBECgpAEQEoCgUFoIgQFICCIlAUCgpAEQEoAgVFoIgUFIAiAlAUCgpAEQEoAgVFoCgUFIAiAlAUCopAUSkoAkVEoCgUFIAiAlAEiopAUSkoAkVEoCgUFIEiAlAEiohAUSgoAEUEoAgUFIGiElAEioxAUSgoAkUEoAgUEYGiEFAEighAUSgoAkUFoAgUEYGiUFAEighAESgiAkUloAgUEYGiUFAEighAESgiAkUhoAgUEYAiUEQEigpAESgiAkWhoAgUEYAiUEQEikJAESgiAkWhiAgUEYAiUEQEikJAESgiAkWgiAgUBYAiUEQEikIRESgiAkWgiAgUhaAiUEQEikARESgqAEWgiAgchSAiUEQEikARESgKQEWgiAgUgSIiUESEikARESgKQUWgiAgUgSIiUBSAikARESgKRUSgiAgVgSIiUBSAikARETgCRUSgKAgVgSIiUBSCikARESoCRUSgKAgVgSIiUASKiEBRECoCRUSgKAAVgSIiVASKiEBRECoCRUSgKBQVgSIgVASKiEBRECoCRUCgCBQRgaIgVASKiEBRACoCRUCoCBQRgaIgVASKgEARKCICRUCoCBQBgaIgVASKgFARKCICRUGoCBQBgSJwRASKgFARKAICRUGoCBQBgSJQRASKgFARKAICRUCICBQBoSJQBASKgFARKAICReCICBQBoSJQBASKgBARKAJCRaCICBQBoSJQBASKgBERKAJCRaAICBQBoSJQBASKwBERKAJCRaAICBQBISJQBISKQBEQKAJCRaAICBQBIyJQBISKQBEQKAJCRKAICBSBIiJQBISKQBEQKAJGRKAICBWBIiBQBISIQBEQKAJGRKAICBWBIiBQBIyIQBEQKAJEQKAICBWBIiBQBIyIQBEQKgJFQKAICBGBIiBQBIyAQBEQIgJFQKAIGBGBIiBQBIiAQBEQIgJFQKAIGAGBIiBUBIqAQBEQIgJFQKAIEAGBIiBEBIqAQBEwAgJFQKAIEAGBIiBEBIqAQBEgAgJFQIgIFAGBImAEBIqAQBEgAgIFQIgIFAGBImAEBIqAABEgAgIFQAgIFAGBAkAEBAqAEBEoAgIFwAgIFAABIkAEBAqAEBEoAAIFgAgIFAABIkAEBAqAERAoAAIEgAgIFAAhIlAABAgAERAoAAIEgAgIEAAhIFAABAgAARAgAEJEgAAIEAAiIEAABAgAARAgAEIAoAAIAAACIEAABAAAARAgAAYAgAAIAAACIUAABAAAARAgAARAgAAIAAACIEAADAAAARAAAARAgAAIAAACIEAACAAAARAAAARCgAAIAAACIEAACIAAARAAAARAgAAQAAACIAAACIAAARAAAARAgAAQAAACIAAACIAAATAAAARAgAAQAAACIAAACIQAASAAAARAAAAQAAECQAAACAQAASAAAAQAAAAQCAACQAAACAQAACAAAAQAAAAQCAAAQAAACAAAACAQAACAAAAQAAAAQAAACAAAACAQAACAAAAQAAAAQAAAAAAAACAQAACAAAAQAAAAQAAAAAABACAAAACAQAAAAAAAQCAAAAABACAAAACAQAAAAAIAQAAAAACBAAAAAgCAAAAAAAIAAAAEAACBAAAABACAAAAAAAIBAAAEAAABAAAAAACAAAAAAAIBAAAEAAABAAAABAIAAAgAAAIAAAAAAAABAAAABAIAAAAAAAIAAAAIBAAAAAAABAAAAAAAAAIAAAAIBAAAAAAABAAAABAIAAIAAAAIAAAAABAABAAAABAIAAAAAAAIAAAAIBAAAAAAABAAAAAAIAAIAAAAIBAAAAAAABAAAABAIAAAAAAAIAAAAAAAABAAAABAIAAAAAAAIAAAAAAAABAAAABAAAAAAAAAIAAAAIAAABAAAABAAAAAAAAAIAAAAIAAAAAAAABAAAAAAAEAIAAAAIAAAAAAAABAAAAAAAEAAAAAAIAAAAAAAgDAAAAAAAEAAAAAAIAAAAAAAgAAAAAAAAEAAAAAAIAAAAAAAgAAAAAAAAEAAAAEAAAAAAAAAgAAAAAAAAEAAAAEAAAAAAAAAgAAAAAAAAAAIAAEAAAAAAAAAgAAAAgAAAAAIAAEAAAAAAAAAgAAAAgAAAAAAAAEAAAAAAAAAAAAAAgAAAAAAAAEAAAAAAAAAAAAAAgAAAAAAAAEAAAAEAAAAAAAAAgAAAAAAAAEAAAAEAAAAAAAAAgAAAAAAAAEAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAQACAAAAAQAAACQCAAQEAAACEAACQkRACQgAISUgJASUgJASEEJCSkRICSghISUgpISUgJASUFJCSkRICSkpJSWgpISUjJASUnJKSkZJCSkNJSWkpJSUjtJSUnpKSk9paSkdpaW19JSUntLSWjpOS2/paS09p6W19JSW3tLSWnpOS2tpaS29paX1/Jye3tNTenpPT+vpKT2/56f0/Jaf1/Nzfn7Pz/n5PT+v5+f8vJ6f9/N7fl7P7/l5P7/v5/X8vN/f9/N+ft/P+/t5v7/v5/X8vN7f8/N6f17P7/l5Pb/n5/f8vp/f8/t7f//v7/39v7//9/f//t7f////////////////";
+const LANDN=48000;
+const landPos=(()=>{
+  const bin=atob(LANDMASK), out=[];
+  const GA=Math.PI*(3-Math.sqrt(5));
+  for(let i=0;i<LANDN;i++){
+    if(!((bin.charCodeAt(i>>3)>>(i&7))&1))continue;
+    const y=1-(i/(LANDN-1))*2, lat=Math.asin(y)*180/Math.PI;
+    let lon=(GA*i)%(2*Math.PI)*180/Math.PI; if(lon>180)lon-=360;
+    const v=ll2v(lat,lon); out.push(v.x,v.y,v.z);
+  }
+  return new Float32Array(out);})();
+const landB=buf(landPos), LANDCOUNT=landPos.length/3;
+const pLand=prog(
+`attribute vec3 aP;uniform mat4 uMVP;uniform vec3 uCam;uniform float uPX;uniform vec3 uSun;
+ varying float vA;varying float vL;
+ void main(){vec3 n=normalize(aP);vec3 vd=normalize(uCam-aP);
+ float f=dot(n,vd); vA=smoothstep(-0.06,0.30,f);
+ vL=0.34+0.66*max(dot(n,normalize(uSun)),0.0);
+ vec4 mv=uMVP*vec4(aP*1.0035,1.0);gl_Position=mv;
+ gl_PointSize=max(1.0,(2.8*uPX)*(1.0/max(mv.w,0.35)));}`,
+`precision mediump float;varying float vA;varying float vL;
+ void main(){vec2 d=gl_PointCoord-0.5;float r=length(d)*2.0;
+ if(r>1.0)discard;float a=(1.0-r*r)*vA;
+ vec3 c=mix(vec3(0.30,0.40,0.57),vec3(0.80,0.88,1.00),vL);
+ gl_FragColor=vec4(c,a);}`);
+</script>
+<script>
+"use strict";
+/* ===================== lineage network ===================== */
+const pArc=prog(
+`attribute vec3 aP;attribute float aS;attribute vec2 aAge;attribute vec3 aCol;attribute vec2 aDyn;
+ uniform mat4 uMVP;uniform vec3 uCam;uniform float uNow,uPX;
+ varying vec3 vCol;varying float vA,vS,vFrac,vSel;
+ void main(){
+   float p=aAge.x,c=aAge.y;
+   float frac=clamp((p-uNow)/max(p-c,1.0),0.0,1.0);
+   vec3 n=normalize(aP);
+   float face=smoothstep(-0.28,0.14,dot(n,normalize(uCam-aP)));
+   vSel=aDyn.x;
+   vA=aDyn.y*face*aDyn.x*step(aS,frac);
+   vCol=aCol;vS=aS;vFrac=frac;
+   gl_Position=uMVP*vec4(aP,1.0);
+   gl_PointSize=max(1.0,(3.6*uPX)/max(gl_Position.w,0.4));}`,
+`precision mediump float;
+ varying vec3 vCol;varying float vA,vS,vFrac,vSel;
+ uniform float uT,uMode;
+ void main(){
+   if(vA<=0.004)discard;
+   float a=vA;
+   if(uMode>0.5){
+     vec2 d=gl_PointCoord-0.5;float r=length(d)*2.0;if(r>1.0)discard;
+     float pulse=fract(vS*9.0-uT*0.5);
+     a*=smoothstep(0.80,1.0,pulse)*(1.0-r*r)*1.9;
+   }else{
+     a*=0.52;
+     float d=abs(vFrac-vS);
+     a+=exp(-d*d*2400.0)*1.45*vSel;
+   }
+   gl_FragColor=vec4(vCol*(0.82+0.55*a),a);}`);
+
+let NODES=[],EDGES=[],ARC={},MODE="Y",SEL=null,OFF=new Set();
+const ARCP=96;                                   // samples per edge
+
+function buildTree(mode){
+  const raw=TREE[mode], gs=GROUPS[mode];
+  const gi={}; gs.forEach((g,i)=>gi[g.k]=i);
+  const byId={};
+  NODES=raw.map((r,i)=>{
+    const n={id:r[0],pid:r[1],gk:r[2],age:r[3],lat:r[4],lon:r[5],
+             title:r[6],blurb:r[7],idx:i,kids:[],
+             col:r[2]?gs[gi[r[2]]].c:STEM, gidx:r[2]?gi[r[2]]:-1};
+    n.v=ll2v(n.lat,n.lon); byId[n.id]=n; return n;});
+  NODES.forEach(n=>{ n.parent=n.pid&&byId[n.pid]?byId[n.pid]:null;
+    if(n.parent)n.parent.kids.push(n); });
+  // keep children strictly younger than parents
+  const fix=n=>{ if(n.parent&&n.age>=n.parent.age) n.age=n.parent.age-500;
+                 n.kids.forEach(fix); };
+  NODES.filter(n=>!n.parent).forEach(fix);
+  // descendant count → label priority
+  const cnt=n=>{ n.desc=n.kids.reduce((s,k)=>s+cnt(k),0)+1; return n.desc; };
+  NODES.filter(n=>!n.parent).forEach(cnt);
+
+  EDGES=NODES.filter(n=>n.parent).map(n=>({a:n.parent,b:n}));
+
+  const N=EDGES.length*ARCP;
+  const P=new Float32Array(N*3),S=new Float32Array(N),A=new Float32Array(N*2),
+        C=new Float32Array(N*3),D=new Float32Array(N*2);
+  const li=[];
+  EDGES.forEach((e,ei)=>{
+    const a=e.a.v,b=e.b.v;
+    const ang=Math.acos(Math.max(-1,Math.min(1,dot3(a,b))));
+    const lift=0.055+0.30*(ang/Math.PI);
+    const rgb=hex2rgb(e.b.col);
+    for(let i=0;i<ARCP;i++){
+      const s=i/(ARCP-1), k=ei*ARCP+i;
+      const m=slerp(a,b,s), h=1.004+lift*Math.sin(Math.PI*s);
+      P[k*3]=m.x*h;P[k*3+1]=m.y*h;P[k*3+2]=m.z*h;
+      S[k]=s; A[k*2]=e.a.age; A[k*2+1]=e.b.age;
+      C[k*3]=rgb[0];C[k*3+1]=rgb[1];C[k*3+2]=rgb[2];
+      D[k*2]=1;D[k*2+1]=1;
+      if(i<ARCP-1){li.push(k,k+1);}
+    }
+    e.vs=ei*ARCP;
+  });
+  ARC={n:N, P:buf(P), S:buf(S), A:buf(A), C:buf(C),
+       D:(()=>{const b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);
+          gl.bufferData(gl.ARRAY_BUFFER,D,gl.DYNAMIC_DRAW);return b;})(),
+       Dcpu:D,
+       I:buf(new Uint16Array(li),gl.ELEMENT_ARRAY_BUFFER),
+       ni:li.length};
+  refreshDyn();
+}
+
+function ancestry(n){const o=[];let c=n;while(c){o.unshift(c);c=c.parent;}return o;}
+function refreshDyn(){
+  const D=ARC.Dcpu;
+  const path=SEL?new Set(ancestry(SEL).map(n=>n.id)):null;
+  EDGES.forEach((e,ei)=>{
+    const on = !path ? 1 : (path.has(e.b.id)?1:0.11);
+    const vis = (e.b.gidx<0 || !OFF.has(e.b.gidx))?1:0;
+    for(let i=0;i<ARCP;i++){const k=(ei*ARCP+i)*2;D[k]=on;D[k+1]=vis;}
+  });
+  gl.bindBuffer(gl.ARRAY_BUFFER,ARC.D);gl.bufferSubData(gl.ARRAY_BUFFER,0,D);
+}
+
+/* ===================== camera ===================== */
+let camLat=22,camLon=14,camDist=3.05,tgt=null,idle=0;
+let drag=false,lx=0,ly=0,pinch=0;
+const RM=matchMedia("(prefers-reduced-motion: reduce)");
+function camPos(){const v=ll2v(camLat,camLon);return V(v.x*camDist,v.y*camDist,v.z*camDist);}
+cv.addEventListener("pointerdown",e=>{drag=true;lx=e.clientX;ly=e.clientY;idle=0;
+  cv.classList.add("drag");cv.setPointerCapture(e.pointerId);hideHint();});
+cv.addEventListener("pointermove",e=>{if(!drag)return;
+  const dx=e.clientX-lx,dy=e.clientY-ly;lx=e.clientX;ly=e.clientY;
+  camLon-=dx*0.26;camLat=Math.max(-84,Math.min(84,camLat+dy*0.26));tgt=null;idle=0;});
+const endDrag=e=>{drag=false;cv.classList.remove("drag");};
+cv.addEventListener("pointerup",endDrag);cv.addEventListener("pointercancel",endDrag);
+cv.addEventListener("wheel",e=>{e.preventDefault();
+  camDist=Math.max(1.28,Math.min(7.5,camDist*(1+Math.sign(e.deltaY)*0.11)));tgt=null;idle=0;hideHint();},{passive:false});
+let tpd=0;
+cv.addEventListener("touchstart",e=>{if(e.touches.length===2)
+  tpd=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);},{passive:true});
+cv.addEventListener("touchmove",e=>{if(e.touches.length===2&&tpd){
+  const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
+  camDist=Math.max(1.28,Math.min(7.5,camDist*tpd/d));tpd=d;tgt=null;idle=0;}},{passive:true});
+function flyTo(n){tgt={lat:n.lat,lon:n.lon,d:Math.min(camDist,2.35)};idle=0;}
+
+/* click → nearest node on screen */
+let lastMVP=null,DPR=1;
+cv.addEventListener("click",e=>{
+  if(!lastMVP)return;
+  const r=cv.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;
+  let best=null,bd=30;
+  for(const n of NODES){
+    if(n.age<NOW)continue;
+    if(n.gidx>=0&&OFF.has(n.gidx))continue;
+    const s=project(n.v,lastMVP,r.width,r.height); if(!s)continue;
+    const d=Math.hypot(s.x-mx,s.y-my); if(d<bd){bd=d;best=n;}
+  }
+  select(best); hideHint();
+});
+function project(v,mvp,w,h){
+  const x=v.x,y=v.y,z=v.z;
+  const cx=mvp[0]*x+mvp[4]*y+mvp[8]*z+mvp[12], cy=mvp[1]*x+mvp[5]*y+mvp[9]*z+mvp[13],
+        cw=mvp[3]*x+mvp[7]*y+mvp[11]*z+mvp[15];
+  if(cw<=0.001)return null;
+  return {x:(cx/cw*0.5+0.5)*w, y:(1-(cy/cw*0.5+0.5))*h, w:cw};
+}
+</script>
+<script>
+"use strict";
+/* ===================== time ===================== */
+const MAXAGE=300000, GAMMA=2.6;
+let NOW=0, PT=1, playing=false, speed=1.4, clock=0;
+const p2age=p=>MAXAGE*Math.pow(1-p,GAMMA);
+const age2p=a=>1-Math.pow(Math.max(a,0)/MAXAGE,1/GAMMA);
+const $=id=>document.getElementById(id);
+const scrub=$("scrub");
+
+function fmtAge(a){
+  if(a<60)return"present";
+  const r=a>=20000?Math.round(a/500)*500:a>=2000?Math.round(a/100)*100:Math.round(a/10)*10;
+  return r.toLocaleString("en-US");
+}
+function epochOf(a){let i=0;while(i+1<EPOCHS.length&&EPOCHS[i+1][0]>=a)i++;return EPOCHS[i][1];}
+function setTime(p,fromSlider){
+  PT=Math.max(0,Math.min(1,p)); NOW=p2age(PT);
+  if(!fromSlider)scrub.value=Math.round(PT*1000);
+  const a=fmtAge(NOW);
+  $("year").innerHTML = a==="present" ? 'present <em>day</em>' : a+' <em>BP</em>';
+  $("epoch").textContent=NOW<60?"":epochOf(NOW);
+}
+scrub.addEventListener("input",()=>{playing=false;paintPlay();setTime(+scrub.value/1000,true);hideHint();});
+(function ticks(){
+  const marks=[300000,100000,60000,30000,12000,5000,0];
+  $("ticks").innerHTML=marks.map(m=>{
+    const pc=(age2p(m)*100).toFixed(2);
+    const lbl=m===0?"now":m>=1000?(m/1000)+"k":m;
+    return `<i style="left:${pc}%"><b>${lbl}</b></i>`;}).join("");
+})();
+
+function paintPlay(){const b=$("play");b.setAttribute("aria-pressed",String(playing));
+  b.textContent=playing?"❚❚ pause":"▶ play";}
+$("play").onclick=()=>{if(!playing&&PT>=0.999)setTime(0);playing=!playing;paintPlay();hideHint();};
+$("rewind").onclick=()=>{setTime(0);playing=false;paintPlay();};
+$("speed").onchange=e=>{speed=+e.target.value;};
+
+/* ===================== legend / dossier ===================== */
+function paintLegend(){
+  const gs=GROUPS[MODE];
+  const counts=gs.map((g,i)=>NODES.filter(n=>n.gidx===i).length);
+  $("legend").innerHTML=gs.map((g,i)=>
+    `<button class="lg" data-g="${i}" data-off="${OFF.has(i)}" aria-pressed="${!OFF.has(i)}">
+       <span class="sw" style="background:${g.c};color:${g.c}"></span>
+       <span class="nm">${g.n}</span><span class="ct">${counts[i]}</span></button>`).join("");
+  $("legend").querySelectorAll(".lg").forEach(b=>b.onclick=()=>{
+    const i=+b.dataset.g; OFF.has(i)?OFF.delete(i):OFF.add(i);
+    if(SEL&&SEL.gidx===i&&OFF.has(i))select(null); else {paintLegend();refreshDyn();}
+  });
+}
+function select(n){SEL=n;refreshDyn();paintDossier();if(n)flyTo(n);}
+function paintDossier(){
+  const d=$("dossier");
+  if(!SEL){
+    const gs=GROUPS[MODE];
+    d.innerHTML=`<div class="db"><p style="color:var(--ink3)">
+      Click any glowing lineage on the globe — or a group above — to trace it back to the root.</p>
+      <dl class="kv"><dt>Nodes</dt><dd>${NODES.length}</dd>
+      <dt>Branches</dt><dd>${EDGES.length}</dd>
+      <dt>Span</dt><dd>${fmtAge(Math.max(...NODES.map(n=>n.age)))} – ${fmtAge(Math.min(...NODES.map(n=>n.age)))} BP</dd></dl></div>`;
+    return;
+  }
+  const chain=ancestry(SEL);
+  const tp=SEL.title.split(" ("), tsfx=tp[1]?tp[1].replace(")",""):"";
+  const g=SEL.gidx>=0?GROUPS[MODE][SEL.gidx]:null;
+  d.innerHTML=`
+   <div class="dh">
+     <span class="code" style="color:${SEL.col}">${tp[0]}</span>
+     <span class="tsfx">${tsfx}</span>
+     <span class="age">${fmtAge(SEL.age)} BP</span>
+   </div>
+   <div class="db">
+     <p>${SEL.blurb||""}</p>
+     <dl class="kv">
+       <dt>Group</dt><dd>${g?g.n:"trunk — before this group existed"}</dd>
+       <dt>Anchor</dt><dd>${Math.abs(SEL.lat).toFixed(1)}°${SEL.lat>=0?"N":"S"}, ${Math.abs(SEL.lon).toFixed(1)}°${SEL.lon>=0?"E":"W"}</dd>
+       <dt>Descends</dt><dd>${chain.length-1} branch${chain.length-1===1?"":"es"} from root</dd>
+     </dl>
+     <div class="chain">${chain.map((n,i)=>
+        (i?'<i>›</i>':'')+`<span data-n="${n.idx}">${n.title.split(" (")[0]}</span>`).join("")}</div>
+   </div>`;
+  d.querySelectorAll(".chain span").forEach(s=>s.onclick=()=>select(NODES[+s.dataset.n]));
+}
+$("prov").innerHTML=`<b>The dots are data. The arcs are inference.</b> Sample points come from
+  dated, georeferenced remains; the paths between them are reconstructed, not observed. This build runs
+  on a hand-built scaffold of published clade ages and approximate origin regions — a stand-in for the
+  Allen Ancient DNA Resource, which it is designed to load. Positions are illustrative, not evidence.`;
+
+/* mode switch */
+function setMode(m){
+  MODE=m;SEL=null;OFF.clear();buildTree(m);paintLegend();paintDossier();
+  $("mY").setAttribute("aria-pressed",String(m==="Y"));
+  $("mM").setAttribute("aria-pressed",String(m==="M"));
+  $("hdrmode").textContent=m==="Y"?"Y-chromosome lineages":"Mitochondrial lineages";
+}
+$("mY").onclick=()=>setMode("Y"); $("mM").onclick=()=>setMode("M");
+$("railtoggle").onclick=e=>{const h=$("rail").classList.toggle("hide");
+  document.body.classList.toggle("railopen",!h);
+  e.currentTarget.setAttribute("aria-pressed",String(!h));};
+if(innerWidth>=820){document.body.classList.add("railopen");}
+else{$("rail").classList.add("hide");$("railtoggle").setAttribute("aria-pressed","false");}
+let hintGone=false;
+function hideHint(){if(hintGone)return;hintGone=true;$("hint").classList.add("gone");}
+setTimeout(hideHint,9000);
+
+/* ===================== labels ===================== */
+const LP=[];const lbox=$("labels");
+function paintLabels(mvp,w,h,camv){
+  const path=SEL?new Set(ancestry(SEL).map(n=>n.id)):null;
+  const cand=[];
+  for(const n of NODES){
+    if(n.age<NOW)continue;
+    if(n.gidx>=0&&OFF.has(n.gidx))continue;
+    if(dot3(norm(n.v),norm(sub(camv,n.v)))<0.12)continue;
+    const s=project(n.v,mvp,w,h); if(!s||s.x<8||s.y<8||s.x>w-8||s.y>h-8)continue;
+    const on=path&&path.has(n.id);
+    if(path&&!on)continue;
+    const leaf=n.kids.length===0;
+    cand.push({n,s,score:(on?1e6:0)+(leaf?900:0)+n.desc*5+(n.blurb?40:0)+(n.gidx<0?-520:0)});
+  }
+  cand.sort((a,b)=>b.score-a.score);
+  const placed=[],out=[];
+  for(const c of cand){
+    if(out.length>=16)break;
+    if(placed.some(p=>Math.abs(p.x-c.s.x)<74&&Math.abs(p.y-c.s.y)<15))continue;
+    placed.push(c.s);out.push(c);
+  }
+  while(LP.length<out.length){const d=document.createElement("div");d.className="lbl";lbox.appendChild(d);LP.push(d);}
+  LP.forEach((d,i)=>{
+    if(i>=out.length){d.style.display="none";return;}
+    const {n,s}=out[i];const t=n.title.split(" (");
+    d.style.display="";d.style.transform=`translate(-50%,-50%) translate(${s.x.toFixed(1)}px,${(s.y-13).toFixed(1)}px)`;
+    d.style.color=n.col==="#5A6480"?"#8E97B2":n.col;
+    d.innerHTML=`<b>${t[0]}</b>${t[1]?` <i>${t[1].replace(")","")}</i>`:""}`;
+  });
+}
+
+/* ===================== render ===================== */
+const ATTRS=8;
+function useProg(p){gl.useProgram(p);for(let i=0;i<ATTRS;i++)gl.disableVertexAttribArray(i);}
+function bind(p,name,b,size){const l=p.a(name);if(l<0)return;
+  gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.enableVertexAttribArray(l);gl.vertexAttribPointer(l,size,gl.FLOAT,false,0,0);}
+
+function resize(){
+  DPR=Math.min(devicePixelRatio||1,2);
+  const w=Math.floor(innerWidth*DPR),h=Math.floor(innerHeight*DPR);
+  if(cv.width!==w||cv.height!==h){cv.width=w;cv.height=h;cv.style.width=innerWidth+"px";cv.style.height=innerHeight+"px";}
+}
+let last=0;
+function frame(ts){
+  const dt=Math.min(0.05,(ts-last)/1000||0);last=ts;clock+=dt;
+  if(playing){let p=PT+dt*0.034*speed;if(p>=1){p=1;playing=false;paintPlay();}setTime(p);}
+  idle+=dt;
+  if(tgt){const k=1-Math.pow(0.0016,dt);
+    let dl=((tgt.lon-camLon+540)%360)-180;
+    camLon+=dl*k;camLat+=(tgt.lat-camLat)*k;camDist+=(tgt.d-camDist)*k;
+    if(Math.abs(dl)<0.25&&Math.abs(tgt.lat-camLat)<0.25)tgt=null;}
+  else if(idle>5&&!drag&&!RM.matches)camLon-=dt*1.6;
+
+  resize();
+  const w=cv.width,h=cv.height;
+  gl.viewport(0,0,w,h);
+  gl.clearColor(0.031,0.043,0.078,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+  gl.enable(gl.BLEND);
+
+  const cam=camPos();
+  const proj=m4persp(52*Math.PI/180,w/h,0.05,120);
+  const railW=document.body.classList.contains("railopen")?318:0;
+  proj[8]=railW/innerWidth;
+  const view=m4look(cam,V(0,0,0),V(0,1,0));
+  const mvp=m4mul(proj,view);
+  lastMVP=mvp;
+  const sun=ll2v(14,camLon+36);
+  const PX=DPR;
+
+  // stars
+  gl.disable(gl.DEPTH_TEST);gl.blendFunc(gl.SRC_ALPHA,gl.ONE);
+  useProg(pStar);gl.uniformMatrix4fv(pStar.u("uMVP"),false,mvp);gl.uniform1f(pStar.u("uPX"),PX);
+  bind(pStar,"aP",starP,3);bind(pStar,"aB",starB,1);gl.drawArrays(gl.POINTS,0,STARN);
+
+  // globe
+  gl.enable(gl.DEPTH_TEST);gl.depthMask(true);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);
+  useProg(pGlobe);gl.uniformMatrix4fv(pGlobe.u("uMVP"),false,mvp);
+  gl.uniform3f(pGlobe.u("uCam"),cam.x,cam.y,cam.z);gl.uniform3f(pGlobe.u("uSun"),sun.x,sun.y,sun.z);
+  bind(pGlobe,"aP",sphP,3);gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,sphI);
+  gl.drawElements(gl.TRIANGLES,SPH.n,gl.UNSIGNED_SHORT,0);
+
+  // land
+  useProg(pLand);gl.uniformMatrix4fv(pLand.u("uMVP"),false,mvp);
+  gl.uniform3f(pLand.u("uCam"),cam.x,cam.y,cam.z);gl.uniform3f(pLand.u("uSun"),sun.x,sun.y,sun.z);
+  gl.uniform1f(pLand.u("uPX"),PX);
+  bind(pLand,"aP",landB,3);gl.drawArrays(gl.POINTS,0,LANDCOUNT);
+
+  // arcs
+  gl.depthMask(false);gl.blendFunc(gl.SRC_ALPHA,gl.ONE);
+  useProg(pArc);
+  gl.uniformMatrix4fv(pArc.u("uMVP"),false,mvp);
+  gl.uniform3f(pArc.u("uCam"),cam.x,cam.y,cam.z);
+  gl.uniform1f(pArc.u("uNow"),NOW);gl.uniform1f(pArc.u("uT"),clock);gl.uniform1f(pArc.u("uPX"),PX);
+  bind(pArc,"aP",ARC.P,3);bind(pArc,"aS",ARC.S,1);bind(pArc,"aAge",ARC.A,2);
+  bind(pArc,"aCol",ARC.C,3);bind(pArc,"aDyn",ARC.D,2);
+  gl.uniform1f(pArc.u("uMode"),0);
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,ARC.I);
+  gl.drawElements(gl.LINES,ARC.ni,gl.UNSIGNED_SHORT,0);
+  gl.uniform1f(pArc.u("uMode"),1);
+  gl.drawArrays(gl.POINTS,0,ARC.n);
+  gl.depthMask(true);
+
+  paintLabels(mvp,innerWidth,innerHeight,cam);
+  requestAnimationFrame(frame);
+}
+
+/* ===================== go ===================== */
+setMode("Y");
+setTime(1);
+requestAnimationFrame(frame);
+addEventListener("resize",resize);
+</script>
