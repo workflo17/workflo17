@@ -4,6 +4,10 @@ An interactive 3D globe that plays back the migration of human genetic lineages 
 300,000 years. This document is the research and the plan; `prototypes/deep-ancestry-atlas/`
 is a working prototype of the rendering engine.
 
+**See also [`deep-ancestry-atlas-layers.md`](deep-ancestry-atlas-layers.md)** — the catalogue of
+other data layers (archaeological sites, radiocarbon, isotopes, pathogens, language,
+domestication) and the argument for what turns a visualization into a research instrument.
+
 ---
 
 ## 1. The thing nobody tells you first
@@ -305,6 +309,9 @@ assert origins for living communities who have their own account of where they c
 | **6 — Ancestry components** | qpAdm proportions as flowing ribbons — the modern framing. | open-ended |
 | **7 — Stories** | Guided tours of the set pieces; "find my line"; share links. | ~2 weeks |
 
+Running alongside these, the non-genetic data layers have their own sequence — radiocarbon
+first, then deep-time archaeology, then individual isotope mobility. See the layers document.
+
 Phase 1 alone is already a better public artifact than anything currently online. Ship at
 every phase boundary.
 
@@ -332,6 +339,12 @@ network requests except a web font. Open it directly in a browser.
 **What is real:**
 
 - Hand-rolled WebGL2: globe, atmosphere, star field, arc network, GPU particle flow.
+- **32,902 ancient places from the Pleiades gazetteer** (v4.1, CC BY 3.0), carried at full
+  coordinate precision with the gazetteer's own `location_precision` flag preserved and
+  rendered — rough positions are drawn dimmer and flagged in the inspector.
+- **A working cross-layer query:** select a lineage node, set a radius, and it returns the
+  matching places broken down by class, exportable as CSV with a citable Pleiades URI on
+  every row.
 - Geography is genuine Natural Earth 110m land, resampled to 48,000 uniform points and
   shipped as an 8 KB bitmask.
 - The **engine is the real engine**: dated tree → great-circle branches → time as a GPU
