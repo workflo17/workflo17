@@ -15,8 +15,10 @@ pipeline — is **MIT**. See `LICENSE`.
 
 ## The derived data
 
-`build/` regenerates every data file from the upstream sources; nothing derived is committed to
-this repository. If you *do* redistribute the built output (a deployment does), these apply.
+`build/` regenerates every data file from the upstream sources, and the built output **is**
+committed under `d/` in the standalone repository so the site deploys without a build step.
+Wherever the built output is redistributed — a deployment does — everything below applies
+directly, not only to downstream forks.
 
 ### 1. Ancient genomes — AADR v66
 
@@ -66,9 +68,10 @@ you publicly distribute it you must
 - keep the attribution to AWMC, the Barrington Atlas and OpenStreetMap visible, and
 - offer the derived database in a machine-readable open form.
 
-MIT on the code does **not** launder this. The atlas satisfies it by naming AWMC and its licence
-in the page's own provenance panel, shipping the route data in an open documented format, and
-regenerating rather than vendoring it here.
+MIT on the code does **not** launder this. This repository satisfies it by naming AWMC, the
+Barrington Atlas and OpenStreetMap in the page's own provenance panel and in this file, shipping
+`d/routes.bin.txt` in an open format documented in the README, and placing that derived route
+database under **ODbL 1.0** — which it is, regardless of the MIT licence on the code around it.
 
 ### 5. Languages — Glottolog CLDF · **CC BY 4.0**
 

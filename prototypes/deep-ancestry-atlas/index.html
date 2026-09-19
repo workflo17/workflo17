@@ -652,6 +652,8 @@ let RANGE=[0,300000];           // hard date filter, years BP
 let LINFILTER=false;            // restrict evidence to carriers of the selected clade
 let QOFF=new Set();             // AADR assessment levels switched off
 let HAP={y:null,mt:null};       // genome index -> deepest clade index in the FULL tree
+let PATHFLY=null;               // declared here, not in the last script block: frame() reads it
+                                // and the first rAF can fire before that block has executed
 const TREES={};
 async function getTree(mark,src){
   const key=(src==="obs"?"tree_":"tree_ref_")+mark;
@@ -1250,7 +1252,6 @@ function paintHits(q){
 $("csearch").addEventListener("input",e=>paintHits(e.target.value));
 
 /* ===================== migration path ===================== */
-let PATHFLY=null;
 function pathHops(){
   if(!SELN)return [];
   const chain=ancestry(SELN);
