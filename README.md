@@ -61,7 +61,7 @@ data loaded, so nothing on the page is a number I typed in.
 
 ## Deep time, as data
 
-### [Deep Ancestry Atlas](https://deep-ancestry-atlas.vercel.app) · [open the globe](https://deep-ancestry-atlas.vercel.app)
+### [Deep Ancestry Atlas](https://github.com/workflo17/deep-ancestry-atlas) · [open the globe](https://deep-ancestry-atlas-workflo17.vercel.app)
 
 An open-source research instrument for human migration: 262,000 georeferenced records from eight
 published datasets on one 3D globe, in one HTML file with hand-rolled WebGL and no dependencies.
